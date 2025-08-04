@@ -1,4 +1,5 @@
-#🌟 SkillSwap – Learn What You Love, Teach What You Know
+🌟 SkillSwap – Learn What You Love, Teach What You Know
+
 SkillSwap is a peer-to-peer learning platform where skills are the currency. It’s built for people who want to learn without the burden of costly courses or inflexible schedules. Whether you're a programmer wanting to learn guitar, or a designer eager to explore data science — SkillSwap connects you with people who can teach what you want and want to learn what you know.
 
 🔍 Key Features
