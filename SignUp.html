@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillSwap - Sign Up</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      display: flex;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    .left-panel {
+      flex: 1;
+      background: url('bg.jpg') no-repeat center center;
+      background-size: cover;
+      color: white;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .left-panel h1,
+    .left-panel p {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .left-panel h1 {
+      font-size: 60px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+      margin-bottom: 5px;
+      margin-left: 110px;
+    }
+
+    .left-panel p {
+      font-size: 17px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 100px;
+      margin-left: 140px;
+    }
+
+    .right-panel {
+      flex: 1;
+      background: #fff;
+      padding: 60px 40px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .right-panel .logo {
+      width: 60px;
+      position: absolute;
+      top: 30px;
+      right: 30px;
+    }
+
+    .right-panel h2 {
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input {
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .gradient-btn {
+      background: linear-gradient(to right, #d63384, #228be6);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .gradient-btn:hover {
+      opacity: 0.9;
+    }
+
+    .or {
+      text-align: center;
+      margin: 20px 0;
+      color: #999;
+    }
+
+    .google-btn {
+      background: #3b5998;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .google-btn:hover {
+      background: #2d4373;
+    }
+
+    .login-link {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #228be6;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left-panel,
+      .right-panel {
+        width: 100%;
+        height: 50%;
+      }
+
+      .right-panel {
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <h1>SKILLSWAP</h1>
+      <p>"One platform. Endless possibilities."</p>
+    </div>
+
+    <div class="right-panel">
+      <img src="logo.png" alt="Logo" class="logo" />
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="text" id="fullname" placeholder="Full name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+        <button type="submit" class="gradient-btn">Create Account</button>
+        <div class="or">or</div>
+        <button type="button" class="google-btn">Sign up with Google</button>
+        <div class="login-link">Already an user? <a href="login.html">Log in</a></div>
+      </form>
+    </div>
+  </div>
+
+<!-- ... same HTML head and styles ... -->
+<script type="module">
+  import { auth, db } from "./firebase_config.js";
+  import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+  import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+
+  document.getElementById("signupForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const fullname = document.getElementById("fullname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
+
+      await setDoc(doc(db, "users", uid), {
+        username,
+        fullname,
+        email,
+        createdAt: serverTimestamp()
+      });
+
+      alert("Account created successfully!");
+      window.location.href = "Login.html";
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already registered. Try logging in instead.");
+      } else {
+        alert("Error: " + error.message);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
