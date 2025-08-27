@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillSwap - Log In</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: row;
+      background: #fff;
+    }
+
+    .left-panel {
+      flex: 1;
+      background: url('bg.jpg') no-repeat center center;
+      background-size: cover;
+      color: white;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .left-panel h1 {
+      font-size: 60px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: bold;
+      margin-bottom: 5px;
+      margin-left: 110px;
+    }
+
+    .left-panel p {
+      font-size: 17px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 100px;
+      margin-left: 140px;
+    }
+
+    .right-panel {
+      flex: 1;
+      background: #fff;
+      padding: 60px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .global-logo {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      width: 100px;
+      z-index: 10;
+    }
+
+    .signin-box {
+      width: 100%;
+      max-width: 350px;
+    }
+
+    .signin-box h2 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: none;
+      border-bottom: 2px solid #ccc;
+      background: transparent;
+      outline: none;
+    }
+
+    .continue-btn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(to right, #d32de2, #48caff);
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .or {
+      text-align: center;
+      margin: 20px 0;
+      color: #666;
+    }
+
+    .social-btn {
+      width: 100%;
+      padding: 10px;
+      color: white;
+      border: none;
+      font-size: 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .facebook {
+      background: #3b5998;
+    }
+
+    .signup-link {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .signup-link a {
+      color: #228be6;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    @media screen and (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left-panel, .right-panel {
+        flex: none;
+        width: 100%;
+        padding: 40px 20px;
+        text-align: center;
+        align-items: center;
+      }
+
+      .left-panel {
+        order: 2;
+      }
+
+      .right-panel {
+        order: 1;
+      }
+
+      .global-logo {
+        position: static;
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <h1>SKILLSWAP</h1>
+      <p>"One platform. Endless possibilities."</p>
+    </div>
+    <div class="right-panel">
+      <img src="logo.png" alt="Logo" class="global-logo"/>
+      <div class="signin-box">
+        <h2>Log In</h2>
+        <form id="loginForm">
+          <input type="email" id="email" placeholder="Email Address" required />
+          <input type="password" id="password" placeholder="Password" required />
+          
+          <div class="signup-link">
+            <a href="forgotpassword.html">Forgot Password?</a>
+          </div>
+          
+          <button type="submit" class="continue-btn">Continue</button>
+        </form>
+
+        <p class="or">or</p>
+        <button class="social-btn facebook">Login using Google</button>
+        
+        <div class="signup-link">
+          New user? <a href="signup.html">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="login.js">
+  
+</script>
+</body>
+</html>
