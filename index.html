@@ -4,16 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SkillSwap - Log In</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
     }
 
     body, html {
       height: 100%;
-      font-family: 'Segoe UI', sans-serif;
+      width: 100%;
     }
 
     .container {
@@ -36,161 +39,234 @@
       position: relative;
     }
 
+    .left-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .left-panel h1,
+    .left-panel p {
+      position: relative;
+      z-index: 2;
+    }
+
     .left-panel h1 {
       font-size: 60px;
       font-family: 'Montserrat', sans-serif;
-      font-weight: bold;
+      font-weight: 800;
       margin-bottom: 5px;
       margin-left: 110px;
     }
 
     .left-panel p {
       font-size: 17px;
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 100px;
+      font-family: 'Montserrat', sans-serif;
       margin-left: 140px;
     }
 
     .right-panel {
       flex: 1;
       background: #fff;
-      padding: 60px 40px;
+      padding: 20px 40px;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      position: relative;
+      min-height: 100vh;
     }
 
-    .global-logo {
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      width: 100px;
-      z-index: 10;
-    }
-
-    .signin-box {
+    .form-container {
       width: 100%;
-      max-width: 350px;
+      max-width: 380px;
+      padding: 10px;
     }
 
-    .signin-box h2 {
-      font-size: 28px;
+    .right-panel h2 {
+      text-align: center;
       margin-bottom: 30px;
       color: #333;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #d32de2;
+      font-size: 1.1rem;
     }
 
     input[type="email"],
     input[type="password"] {
       width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      border: none;
-      border-bottom: 2px solid #ccc;
-      background: transparent;
+      padding: 12px 15px 12px 45px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
       outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    .continue-btn {
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: #d32de2;
+      box-shadow: 0 0 5px rgba(211, 45, 226, 0.4);
+    }
+
+    .login-btn {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      margin-top: 20px;
       background: linear-gradient(to right, #d32de2, #48caff);
       border: none;
       color: white;
       font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
+      border-radius: 8px;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .login-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
     .or {
       text-align: center;
       margin: 20px 0;
-      color: #666;
+      color: #aaa;
+      position: relative;
     }
 
+    .or::before, .or::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #eee;
+    }
+
+    .or::before { left: 0; }
+    .or::after { right: 0; }
     .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      padding: 10px;
-      color: white;
-      border: none;
-      font-size: 14px;
-      margin-bottom: 10px;
+      padding: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       cursor: pointer;
+      font-size: 0.95rem;
+      background-color: white;
+      color: #333;
+      transition: background-color 0.3s;
+      font-weight: 600;
     }
 
-    .facebook {
-      background: #3b5998;
+    .social-btn i {
+      margin-right: 10px;
+      color: #db4437;
+      font-size: 1.1rem;
+    }
+
+    .social-btn:hover {
+      background-color: #f7f7f7;
+      border-color: #d32de2;
     }
 
     .signup-link {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 20px;
       font-size: 14px;
-      color: #333;
+      color: #666;
     }
 
     .signup-link a {
-      color: #228be6;
+      color: #d32de2;
       text-decoration: none;
       font-weight: bold;
+      transition: color 0.3s;
     }
 
     .signup-link a:hover {
+      color: #48caff;
       text-decoration: underline;
     }
 
-    @media screen and (max-width: 768px) {
+    @media (max-width: 768px) {
       .container {
         flex-direction: column;
       }
-
-      .left-panel, .right-panel {
-        flex: none;
-        width: 100%;
-        padding: 40px 20px;
-        text-align: center;
-        align-items: center;
-      }
-
       .left-panel {
-        order: 2;
+        height: 30vh;
+        padding: 30px;
+        align-items: center;
+        text-align: center;
       }
-
+      .left-panel h1,
+      .left-panel p {
+        margin-left: 0;
+        text-align: center;
+      }
+      .left-panel h1 {
+        font-size: 40px;
+      }
+      .left-panel p {
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
       .right-panel {
-        order: 1;
+        padding: 20px 30px;
+        justify-content: flex-start;
+        overflow-y: auto;
       }
-
-      .global-logo {
-        position: static;
-        display: block;
+      .form-container {
+        max-width: 100%;
       }
     }
   </style>
 </head>
 <body>
+
   <div class="container">
     <div class="left-panel">
       <h1>SKILLSWAP</h1>
       <p>"One platform. Endless possibilities."</p>
     </div>
     <div class="right-panel">
-      <img src="logo.png" alt="Logo" class="global-logo"/>
-      <div class="signin-box">
+      <br class="form-container">
         <h2>Log In</h2>
         <form id="loginForm">
-          <input type="email" id="email" placeholder="Email Address" required />
-          <input type="password" id="password" placeholder="Password" required />
-          
-          <div class="signup-link">
-            <a href="forgotpassword.html">Forgot Password?</a>
-          </div>
-          
-          <button type="submit" class="continue-btn">Continue</button>
-        </form>
 
-        <p class="or">or</p>
-        <button class="social-btn facebook">Login using Google</button>
-        
+          <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" id="email" placeholder="Email Address" required />
+          </div>
+
+          <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="password" placeholder="Password" required />
+          </div>
+
+          <button type="submit" id="emailLoginBtn" class="login-btn">Log In</button>
+        </form>
+        <br>
+        <center><a href="forgotpassword.html">Forgot Password?</a></center>
+
         <div class="signup-link">
           New user? <a href="signup.html">Sign Up</a>
         </div>
@@ -198,8 +274,55 @@
     </div>
   </div>
 
-  <script type="module" src="login.js">
-  
-</script>
+  <script type="module">
+    import { auth } from "./firebase_config.js"; 
+    import { 
+        signInWithEmailAndPassword, 
+        GoogleAuthProvider, 
+        signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+    const emailLoginBtn = document.getElementById('emailLoginBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+
+    const setButtonState = (button, text, disabled) => {
+        button.innerHTML = text;
+        button.disabled = disabled;
+    };
+    
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        alert("Please enter email and password.");
+        return;
+      }
+
+      setButtonState(emailLoginBtn, 'Logging In...', true);
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "home.html";
+
+      } catch (error) {
+        let errorMessage = "Invalid Email or Password. Please try again.";
+        
+        if (error.code === "auth/invalid-email") {
+          errorMessage = "The email address is not formatted correctly.";
+        }
+        alert(errorMessage);
+        console.error("Login Error:", error);
+
+      } finally {
+        setButtonState(emailLoginBtn, 'Log In', false);
+      }
+    });
+    
+  </script>
 </body>
 </html>
+
+
