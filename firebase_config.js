@@ -1,9 +1,8 @@
-// firebase_config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
 
-// Use one consistent config (I'll use the signup one since it includes Firestore)
 const firebaseConfig = {
   apiKey: "AIzaSyCcDIzEA8WjPU4z9wt_qNbd4C7gtmP9xOg",
   authDomain: "skillswap-dd970.firebaseapp.com",
@@ -17,6 +16,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); 
 
-// Export for usage in modules
-export { app, auth, db };
+export { auth, db, storage };
