@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - What I Know</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-orange: #ff7d2a; 
+            --color-white: #ffffff;
+            --color-dark-blue: #1a2a3a; 
+            --color-bg-light: #f1f6fc; 
+            --color-gray-text: #6c757d;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-dark-blue); 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .setup-container {
+            display: flex;
+            background: var(--color-white);
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: var(--color-dark-blue); 
+            color: var(--color-white);
+            padding: 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 250px;
+        }
+
+        .sidebar h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--color-orange);
+            padding-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            opacity: 0.5; 
+            transition: opacity 0.3s;
+        }
+
+        .step-item.active {
+            opacity: 1; 
+        }
+        
+        .step-item.complete .step-icon {
+            background-color: #28a745; 
+        }
+        
+        .step-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--color-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-text strong {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .step-text span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .content-area {
+            flex: 2;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--color-dark-blue);
+        }
+
+        h2 .highlight {
+            color: var(--color-orange);
+        }
+
+        .content-area > p {
+            font-size: 1rem;
+            color: var(--color-gray-text);
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 180px;
+            resize: vertical;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--color-orange);
+            box-shadow: 0 0 8px rgba(255, 125, 42, 0.5);
+        }
+
+        .action-button {
+            background-color: var(--color-orange);
+            color: var(--color-white);
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none; 
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s;
+            display: inline-block; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            width: 100%; 
+            text-transform: uppercase;
+        }
+        
+        .action-button:hover:not(:disabled) {
+            background-color: #e66b2a; 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .action-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .setup-container {
+                flex-direction: column;
+                max-width: 600px;
+            }
+            .sidebar {
+                border-radius: 15px 15px 0 0;
+                padding: 30px;
+            }
+            .content-area {
+                padding: 30px;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        
+        <div class="sidebar">
+            <h3><i class="fas fa-arrow-right-long"></i> SKILLSWAP SETUP</h3>
+            <div class="step-item active">
+                <div class="step-icon">1</div>
+                <div class="step-text">
+                    <strong>What I Know</strong>
+                    <span>Skills you can teach.</span>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-icon">2</div>
+                <div class="step-text">
+                    <strong>What I Want</strong>
+                    <span>Skills you want to learn.</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <h2>Your Teaching <span class="highlight">Skills</span></h2>
+            <p>Tell us what you are confident in teaching others. This information will be used to connect you with learners.</p>
+            
+            <form id="skillKnowForm">
+                <div class="input-group">
+                    <textarea 
+                        name="skillsKnown" 
+                        id="skillsKnownInput" 
+                        placeholder="Enter your skills here. Separate each skill with a comma (e.g., Python, Guitar, Digital Marketing, Yoga)" 
+                        required
+                    ></textarea>
+                </div>
+                
+                <button type="submit" class="action-button" id="nextBtn">
+                    <i class="fas fa-arrow-right"></i> Next Step
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from "./firebase_config.js";
+        import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+        
+        let currentUserId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserId = user.uid;
+            } else {
+                window.location.href = "index.html"; 
+            }
+        });
+
+        document.getElementById("skillKnowForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            if (!currentUserId) {
+                alert("User not authenticated. Please log in again.");
+                return;
+            }
+
+            const skillsKnown = document.getElementById("skillsKnownInput").value.trim();
+            const nextBtn = document.getElementById("nextBtn");
+            
+            nextBtn.textContent = 'Saving...';
+            nextBtn.disabled = true;
+
+            try {
+                const userDocRef = doc(db, "users", currentUserId);
+                await updateDoc(userDocRef, {
+                    skillsKnown: skillsKnown
+                });
+                window.location.href = "iwant.html";
+
+            } catch (error) {
+                console.error("Error saving 'Skills I Know':", error);
+                alert("Failed to save skills. Please try again.");
+            } finally {
+                nextBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Next Step';
+                nextBtn.disabled = false;
+            }
+        });
+    </script>
+    </body>
+</html>
