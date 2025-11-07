@@ -1,245 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SkillSwap - Sign Up</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSwap - Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&family=Orbitron:wght@500;900&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styles and Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
 
-    html, body {
-      height: 100%;
-      width: 100%;
-    }
+        :root {
+            /* Theme colors for light side */
+            --primary-color: #d32de2; 
+            --secondary-color: #48caff;
+            --text-dark: #333333;
+            --text-light: #ffffff;
+            --input-border: #cccccc;
+            --error-red: #e74c3c;
+            --button-gradient: linear-gradient(to right, var(--primary-color), var(--secondary-color)); 
 
-    body {
-      display: flex;
-    }
+            /* Dark Theme Colors for Splash */
+            --dark-bg-start: #1e002e; /* Deep dark purple */
+            --dark-bg-end: #000a1f;   /* Deep dark blue */
+            --neon-text-color: #00ffc8; /* Electric Cyan/Green */
+        }
 
-    .container {
-      display: flex;
-      flex: 1;
-      height: 100vh;
-      width: 100vw;
-    }
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden; 
+        }
 
-    .left-panel {
-      flex: 1;
-      background: url('bg.jpg') no-repeat center center;
-      background-size: cover;
-      color: white;
-      padding: 60px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      position: relative;
-    }
+        .container {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: row; 
+            background: #fff;
+        }
 
-    .left-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-    }
+        /* --- Left/Right Panel Styles (Form Area) --- */
 
-    .left-panel h1,
-    .left-panel p {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-    }
+        .left-panel {
+            flex: 1;
+            background: url('bg.jpg') no-repeat center center; 
+            background-size: cover;
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
 
-    .left-panel h1 {
-      font-size: 60px;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: bold;
-      margin-bottom: 5px;
-      margin-left: 110px;
-    }
+        .left-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
 
-    .left-panel p {
-      font-size: 17px;
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 100px;
-      margin-left: 140px;
-    }
+        .left-panel h1,
+        .left-panel p {
+            position: relative;
+            z-index: 2;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+        }
+        
+        .left-panel h1 {
+            font-size: 60px;
+            margin-bottom: 5px;
+            margin-left: 110px; 
+        }
 
-    .right-panel {
-      flex: 1;
-      background: #fff;
-      padding: 60px 40px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+        .left-panel p {
+            font-size: 17px;
+            margin-left: 140px; 
+        }
+        
+        .right-panel {
+            flex: 1;
+            background: #fff;
+            padding: 20px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-    .right-panel .logo {
-      width: 60px;
-      position: absolute;
-      top: 30px;
-      right: 30px;
-    }
+        .form-container {
+            width: 100%;
+            max-width: 380px;
+            padding: 10px;
+        }
+        
+        .right-panel h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+            font-size: 2rem;
+            font-weight: 800;
+        }
 
-    .right-panel h2 {
-      margin-bottom: 30px;
-      font-size: 28px;
-      font-weight: bold;
-      color: #333;
-    }
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+            text-align: left;
+        }
 
-    form {
-      display: flex;
-      flex-direction: column;
-    }
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
 
-    input {
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
+        .form-container input[type="text"],
+        .form-container input[type="email"],
+        .form-container input[type="password"] {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
 
-    .gradient-btn {
-      background: linear-gradient(to right, #d63384, #228be6);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-top: 10px;
-    }
+        .form-container input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(211, 45, 226, 0.4);
+        }
+        
+        .input-group .error-message {
+            color: var(--error-red);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            margin-left: 45px; 
+            display: none; 
+        }
+        .input-group input.error {
+            border-color: var(--error-red);
+        }
 
-    .gradient-btn:hover {
-      opacity: 0.9;
-    }
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: var(--button-gradient); 
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: opacity 0.3s, transform 0.3s;
+        }
 
-    .or {
-      text-align: center;
-      margin: 20px 0;
-      color: #999;
-    }
+        .signup-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .signup-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
 
-    .google-btn {
-      background: #3b5998;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
 
-    .google-btn:hover {
-      background: #2d4373;
-    }
+        .login-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
 
-    .login-link {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 14px;
-    }
+        .login-link a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        /* Message box remains for general error/info alerts */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333; 
+            color: var(--text-light);
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+            z-index: 1000;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
 
-    .login-link a {
-      color: #228be6;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        /* --- DARK AESTHETIC WELCOME SPLASH SCREEN STYLES --- */
+        #welcomeSplash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Deep, dark gradient for aesthetic look */
+            background: linear-gradient(135deg, var(--dark-bg-start), var(--dark-bg-end)); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; 
+            opacity: 0; 
+            visibility: hidden;
+            transition: opacity 0.4s ease-in-out; /* Slightly faster transition */
+        }
 
-    .login-link a:hover {
-      text-decoration: underline;
-    }
+        #welcomeSplash.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
+        #welcomeSplash h3 {
+            color: var(--neon-text-color);
+            font-family: 'Orbitron', sans-serif; /* Attractive Tech/Futuristic Font */
+            font-weight: 900;
+            font-size: 5vw; 
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            /* Glowing Effect */
+            text-shadow: 
+                0 0 10px var(--neon-text-color),
+                0 0 20px var(--neon-text-color),
+                0 0 40px rgba(0, 255, 200, 0.5); /* Stronger glow */
+            
+            /* Text Animation */
+            animation: textFadeIn 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        
+        /* Keyframes for a smooth, dramatic text reveal */
+        @keyframes textFadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+                filter: blur(5px);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0px);
+            }
+            100% {
+                 opacity: 1;
+                 transform: scale(1) translateY(0);
+            }
+        }
+        
+        /* --- Media Queries --- */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            /* ... (omitted form styles for brevity, they remain the same) ... */
 
-      .left-panel,
-      .right-panel {
-        width: 100%;
-        height: 50%;
-      }
-
-      .right-panel {
-        padding: 40px 20px;
-      }
-    }
-  </style>
+            #welcomeSplash h3 {
+                font-size: 8vw;
+                letter-spacing: 4px;
+                text-align: center;
+                padding: 0 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="left-panel">
-      <h1>SKILLSWAP</h1>
-      <p>"One platform. Endless possibilities."</p>
+
+    <div class="container">
+        <div class="left-panel">
+            <h1>SKILLSWAP</h1>
+            <p>"One platform. Endless possibilities."</p>
+        </div>
+        
+        <div class="right-panel">
+            <div class="form-container">
+                <h2>Sign Up</h2>
+                <form id="signupForm">
+                    
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Username" required>
+                        <div class="error-message" id="usernameError"></div>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email Address" required>
+                        <div class="error-message" id="emailError"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                        <div class="error-message" id="confirmPasswordError"></div>
+                    </div>
+
+                    <button type="submit" id="signupBtn" class="signup-btn">Sign Up</button>
+                </form>
+
+                <p class="login-link">Already have an account? <a href="index.html">Log In</a></p>
+            </div>
+        </div>
     </div>
 
-    <div class="right-panel">
-      <img src="logo.png" alt="Logo" class="logo" />
-      <h2>Sign Up</h2>
-      <form id="signupForm">
-        <input type="text" id="username" placeholder="Username" required />
-        <input type="text" id="fullname" placeholder="Full name" required />
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
-        <button type="submit" class="gradient-btn">Create Account</button>
-        <div class="or">or</div>
-        <button type="button" class="google-btn">Sign up with Google</button>
-        <div class="login-link">Already an user? <a href="login.html">Log in</a></div>
-      </form>
+    <div id="messageBox" class="message-box" role="alert"></div>
+
+    <div id="welcomeSplash">
+        <h3>Welcome to SkillSwap</h3>
     </div>
-  </div>
 
-<!-- ... same HTML head and styles ... -->
-<script type="module">
-  import { auth, db } from "./firebase_config.js";
-  import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-  import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+    <script type="module">
+        import { auth, db } from "./firebase_config.js"; 
+        
+        import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-  document.getElementById("signupForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+        // DOM Elements
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const signupBtn = document.getElementById('signupBtn');
+        const messageBox = document.getElementById('messageBox');
+        const welcomeSplash = document.getElementById('welcomeSplash'); // Splash Element
 
-    const username = document.getElementById("username").value.trim();
-    const fullname = document.getElementById("fullname").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+        // Error message elements (omitted for brevity)
+        const usernameError = document.getElementById('usernameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        
+        // --- Utility Functions (omitted for brevity) ---
+        function showMessage(msg, isError = false) {
+            messageBox.textContent = msg;
+            messageBox.style.backgroundColor = isError ? '#e74c3c' : '#333';
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+        function setButtonState(btn, text, isDisabled) {
+            btn.innerHTML = text;
+            btn.disabled = isDisabled;
+        }
+        
+        function validateInput(inputElement, errorElement, message) {
+            inputElement.classList.remove('error');
+            errorElement.style.display = 'none';
+            if (!inputElement.value.trim()) {
+                inputElement.classList.add('error');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                return false;
+            }
+            return true;
+        }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = userCredential.user.uid;
+        function validateForm() {
+            let isValid = true;
+            isValid = validateInput(usernameInput, usernameError, 'Username is required.') && isValid;
+            isValid = validateInput(emailInput, emailError, 'Email is required.') && isValid;
+            isValid = validateInput(passwordInput, passwordError, 'Password is required.') && isValid;
+            isValid = validateInput(confirmPasswordInput, confirmPasswordError, 'Confirm password is required.') && isValid;
 
-      await setDoc(doc(db, "users", uid), {
-        username,
-        fullname,
-        email,
-        createdAt: serverTimestamp()
-      });
+            if (passwordInput.value.trim() !== '' && confirmPasswordInput.value.trim() !== '' && passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.classList.add('error');
+                confirmPasswordError.textContent = 'Passwords do not match.';
+                confirmPasswordError.style.display = 'block';
+                isValid = false;
+            } 
+            if (passwordInput.value.trim() !== '' && passwordInput.value.trim().length < 6) {
+                passwordInput.classList.add('error');
+                passwordError.textContent = 'Password must be at least 6 characters.';
+                passwordError.style.display = 'block';
+                isValid = false;
+            } 
+            return isValid;
+        }
 
-      alert("Account created successfully!");
-      window.location.href = "Login.html";
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        alert("This email is already registered. Try logging in instead.");
-      } else {
-        alert("Error: " + error.message);
-      }
-    }
-  });
-</script>
 
+        // --- Sign Up Handler (Modified for Splash Screen) ---
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                showMessage("Please fix the errors in the form.", true);
+                return;
+            }
+
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+            
+            setButtonState(signupBtn, '<i class="fas fa-spinner fa-spin"></i> Signing Up...', true);
+
+            try {
+                // 1. Create user and save profile
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await updateProfile(user, { displayName: username });
+                const userDocRef = doc(db, "users", user.uid);
+                await setDoc(userDocRef, {
+                    username: username,
+                    email: email,
+                    skillsKnown: "", 
+                    skillsToLearn: "",
+                    avatarUrl: "https://via.placeholder.com/100/f19fb3/ffffff?text=" + username.charAt(0).toUpperCase()
+                });
+                
+                // 2. SUCCESS: Show the aesthetic welcome splash screen
+                // Use a short, fixed delay for a direct feel.
+                const totalDisplayTime = 1800; // 1.8 seconds total visibility
+
+                welcomeSplash.classList.add('active');
+                
+                setTimeout(() => {
+                    // Fade out immediately after the display time
+                    welcomeSplash.style.opacity = '0';
+                    
+                    // Redirect to inknow.html after the fade-out transition completes (0.4s)
+                    setTimeout(() => {
+                        window.location.href = "inknow.html";
+                    }, 400); 
+                }, totalDisplayTime);
+
+
+            } catch (error) {
+                let errorMessage = "Sign up failed. Please try again.";
+                
+                if (error.code === "auth/email-already-in-use") {
+                    errorMessage = "This email address is already in use. Try logging in.";
+                } else if (error.code === "auth/weak-password") {
+                    errorMessage = "Password should be at least 6 characters.";
+                } else if (error.code === "auth/invalid-email") {
+                    errorMessage = "The email address is not valid.";
+                }
+                showMessage(errorMessage, true);
+                console.error("Sign Up Error:", error);
+
+            } finally {
+                setButtonState(signupBtn, 'Sign Up', false);
+            }
+        });
+
+        // Add input event listeners for real-time validation feedback
+        usernameInput.addEventListener('input', () => validateInput(usernameInput, usernameError, 'Username is required.'));
+        emailInput.addEventListener('input', () => validateInput(emailInput, emailError, 'Email is required.'));
+        passwordInput.addEventListener('input', () => validateInput(passwordInput, passwordError, 'Password is required.'));
+        confirmPasswordInput.addEventListener('input', () => validateInput(confirmPasswordInput, confirmPasswordError, 'Confirm password is required.'));
+    </script>
 </body>
 </html>
