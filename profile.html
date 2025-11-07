@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - SkillSwap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+        --color-orange: #ff7d2a; 
+        --color-white: #ffffff; 
+        --color-dark-blue: #2c3e50; 
+        --color-light-gray: #e0e0e0;
+        --color-bg-light: #f1f6fc;
+        --color-text: #333333;
+        --shadow-elevation: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --navbar-height: 60px; 
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--color-bg-light);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--navbar-height);
+        background-color: var(--color-dark-blue);
+        color: var(--color-white);
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        padding: 0 30px 0 0px; 
+        box-shadow: var(--shadow-elevation);
+        z-index: 1000;
+        gap: 20px; 
+    }
+
+    .logo a {
+        color: var(--color-white);
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-left: 30px;
+    }
+
+    .logo span {
+        color: var(--color-orange);
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        flex-grow: 0; 
+        gap: 10px; 
+        margin-left: auto; 
+    }
+    
+    .nav-link, .dropdown-toggle {
+        color: var(--color-white);
+        text-decoration: none;
+        font-weight: 600;
+        padding: 8px 10px; 
+        border-radius: 0; 
+        transition: background-color 0.3s;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 1rem;
+        white-space: nowrap; 
+        text-transform: uppercase; 
+    }
+
+    .nav-link:hover, .dropdown-toggle:hover {
+        background-color: rgba(255, 255, 255, 0.1); 
+    }
+    
+    .dropdown {
+        position: relative;
+    }
+    
+    .nav-link.active, .dropdown:hover .dropdown-toggle, .dropdown-toggle.active {
+        background-color: #243444; 
+    }
+    
+    .arrow-down {
+        margin-left: 5px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        display: inline-block;
+        padding: 3px;
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+        margin-left: 5px;
+        font-size: 0.8rem;
+        vertical-align: middle;
+    }
+    
+    .dropdown-toggle {
+        height: var(--navbar-height); 
+        display: flex;
+        align-items: center;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #34495e; 
+        min-width: 180px; 
+        box-shadow: var(--shadow-elevation);
+        z-index: 1;
+        top: 100%; 
+        right: 0; 
+        left: auto; 
+        border-radius: 0 0 6px 6px; 
+        overflow: hidden;
+        padding: 0;
+        margin-right: -10px; 
+    }
+
+    .dropdown-content a {
+        color: var(--color-white);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-weight: 400;
+        transition: background-color 0.3s;
+        text-transform: none; 
+        white-space: nowrap;
+    }
+
+    .dropdown-content a:hover {
+        background-color: rgba(255, 125, 42, 0.2); 
+        color: var(--color-white); 
+    }
+    
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    
+    .logout-btn {
+        display: none;
+    }
+
+    .profile-container {
+      padding-top: calc(var(--navbar-height) + 40px);
+      padding-bottom: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .profile-card {
+      background-color: var(--color-white);
+      border-radius: 12px;
+      box-shadow: var(--shadow-elevation);
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+      margin: 20px;
+    }
+
+    .profile-card h1 {
+      text-align: center;
+      color: var(--color-dark-blue);
+      margin-bottom: 30px;
+      font-weight: 800;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--color-dark-blue); }
+    input[type="text"], textarea { width: 100%; padding: 12px; border: 1px solid var(--color-light-gray); border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+    textarea { resize: vertical; min-height: 100px; }
+    .avatar-group { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
+    .avatar-preview { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--color-orange); box-shadow: 0 0 0 4px rgba(255, 125, 42, 0.2); margin-bottom: 15px; }
+    .change-avatar-btn { background-color: var(--color-dark-blue); color: var(--color-white); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background-color 0.3s, transform 0.1s; }
+    .change-avatar-btn:hover { background-color: #2c4a68; transform: translateY(-1px); }
+    .save-btn { width: 100%; padding: 15px; background-color: var(--color-orange); color: var(--color-white); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: background-color 0.3s, transform 0.1s; margin-top: 10px; }
+    .save-btn:hover:not(:disabled) { background-color: #e66f21; transform: translateY(-1px); }
+    .message-box { position: fixed; bottom: 20px; right: 20px; background-color: var(--color-dark-blue); color: var(--color-white); padding: 15px 25px; border-radius: 8px; box-shadow: var(--shadow-elevation); opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 2000; }
+    .message-box.show { opacity: 1; visibility: visible; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background-color: var(--color-white); padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); transform: scale(0.9); transition: transform 0.3s; }
+    .modal-overlay.show .modal-content { transform: scale(1); }
+    .modal-content h2 { text-align: center; color: var(--color-orange); margin-top: 0; margin-bottom: 20px; }
+    .avatar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; padding: 10px; max-height: 300px; overflow-y: auto; }
+    .avatar-option { width: 100%; height: 100%; aspect-ratio: 1 / 1; border-radius: 50%; object-fit: cover; cursor: pointer; border: 3px solid transparent; transition: border-color 0.2s, transform 0.1s; }
+    .avatar-option.selected { border-color: var(--color-orange); box-shadow: 0 0 0 5px rgba(255, 125, 42, 0.4); }
+    .modal-close-btn { display: block; width: 100%; margin-top: 25px; padding: 12px; background-color: var(--color-dark-blue); color: var(--color-white); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
+
+    @media (max-width: 800px) {
+        .nav-links {
+            display: flex; 
+        }
+    }
+    @media (max-width: 650px) {
+      .profile-card {
+        padding: 20px;
+        margin: 10px;
+      }
+      .profile-card h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <a href="home.html">SKILL<span>SWAP</span></a>
+        </div>
+        
+        <div class="nav-links">
+            <a href="chats.html" class="nav-link">CHATS</a>
+            <a href="requests.html" class="nav-link">REQUESTS</a>
+            
+            <div class="dropdown" id="about-us-dropdown">
+                <button class="dropdown-toggle">
+                    ABOUT US <i class="arrow-down"></i> </button>
+                <div class="dropdown-content">
+                    <a href="home.html#why-choose-us">Why Choose Us?</a>
+                    <a href="home.html#what-we-do">What We Do</a>
+                    <a href="home.html#our-team">Our Team</a>
+                </div>
+            </div>
+            
+            <a href="profile.html" class="nav-link active">PROFILE</a>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <h1>My Profile</h1>
+            <form id="profileForm">
+                
+                <div class="form-group avatar-group">
+                    <img id="avatarPreview" src="G1.jpg" alt="Avatar Preview" class="avatar-preview">
+                    
+                    <button type="button" id="openAvatarModalBtn" class="change-avatar-btn">
+                        Select Avatar
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Your display name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="skillsKnown">Skills I Know (e.g., Python, UI/UX Design, Woodworking)</label>
+                    <textarea id="skillsKnown" placeholder="List the skills you can teach or offer..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="skillsToLearn">Skills I Want to Learn (e.g., Rust, Digital Marketing, Guitar)</label>
+                    <textarea id="skillsToLearn" placeholder="List the skills you are interested in learning..."></textarea>
+                </div>
+
+                <button type="submit" id="saveBtn" class="save-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="messageBox" class="message-box" role="alert"></div>
+
+    <div id="avatarModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Select Your Avatar</h2>
+            <div id="avatarGrid" class="avatar-grid">
+                </div>
+            <button type="button" id="closeAvatarModalBtn" class="modal-close-btn">Close</button>
+        </div>
+    </div>
+
+    <script type="module" src="./profile.js"></script>
+</body>
+</html>
