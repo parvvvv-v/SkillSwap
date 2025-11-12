@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSwap - Requests</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --color-orange: #ff7d2a;
+        --color-white: #ffffff;
+        --color-dark-blue: #1a2a3a;
+        --color-medium-blue: #2c4a68;
+        --color-light-gray: #e0e0e0;
+        --color-bg-light: #f1f6fc;
+        --navbar-height: 60px;
+        --color-success: #4CAF50;
+        --color-danger: #F44336;
+        --color-info: #2196F3;
+        --color-chat: #00bcd4;
+        --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--color-bg-light);
+        color: var(--color-dark-blue);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding-top: var(--navbar-height); 
+    }
+
+    .top-navbar {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        width: 100%;
+        background-color: var(--color-dark-blue);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        padding: 15px 40px;
+        box-sizing: border-box;
+        color: var(--color-white);
+        height: var(--navbar-height); 
+    }
+    .top-navbar .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+    }
+    .top-navbar .logo .skill { color: var(--color-orange); }
+    .top-navbar .logo .swap { color: var(--color-white); }
+    .top-navbar .nav-links {
+        display: flex;
+        gap: 20px; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+    }
+    .top-navbar .nav-links a {
+        color: var(--color-white);
+        text-decoration: none;
+        font-size: 0.95rem; 
+        font-weight: 600;
+        transition: color 0.3s ease;
+        white-space: nowrap; 
+    }
+    .top-navbar .nav-links a:hover { color: var(--color-orange); }
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        background-color: var(--color-medium-blue); 
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+        z-index: 10;
+        border-radius: 5px;
+        overflow: hidden;
+        animation: fadeIn 0.3s ease-out;
+        transform-origin: top;
+    }
+    .dropdown-menu a {
+        color: var(--color-white);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+        font-weight: 400;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .dropdown-menu a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-dark-blue);
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .requests-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .requests-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .requests-header h2 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .tab-navigation {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid var(--color-light-gray);
+    }
+
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 15px 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-medium-blue);
+        cursor: pointer;
+        transition: color 0.3s, border-bottom 0.3s;
+        border-bottom: 3px solid transparent;
+        margin: 0 10px;
+        position: relative;
+    }
+
+    .tab-btn.active {
+        color: var(--color-orange);
+        border-bottom-color: var(--color-orange);
+    }
+
+    .tab-btn.active .count {
+        background-color: var(--color-orange);
+        color: var(--color-white);
+    }
+
+    .count {
+        background-color: var(--color-medium-blue);
+        color: var(--color-white);
+        padding: 2px 8px;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        margin-left: 8px;
+        font-weight: 700;
+    }
+
+    .request-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .request-card {
+        display: flex;
+        align-items: center;
+        background: var(--color-white);
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: var(--shadow-light);
+        transition: transform 0.2s, opacity 0.5s;
+    }
+
+    .request-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .request-card.hidden {
+        opacity: 0;
+        max-height: 0;
+        padding: 0 15px;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .avatar-small {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 15px;
+        border: 2px solid var(--color-orange);
+        flex-shrink: 0;
+    }
+
+    .request-details {
+        flex-grow: 1;
+    }
+
+    .request-details h4 {
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-dark-blue);
+    }
+
+    .request-details p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-medium-blue);
+    }
+    
+    .request-details p strong {
+        color: var(--color-orange);
+    }
+
+    .request-actions {
+        flex-shrink: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .action-accept, .action-reject, .action-chat {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+    }
+
+    .action-accept {
+        background-color: var(--color-success);
+        color: var(--color-white);
+    }
+
+    .action-reject {
+        background-color: var(--color-danger);
+        color: var(--color-white);
+    }
+    
+    .action-chat {
+        background-color: var(--color-chat);
+        color: var(--color-white);
+    }
+
+    .action-accept:hover, .action-reject:hover, .action-chat:hover {
+        opacity: 0.9;
+    }
+    
+    .pending-status, .accepted-status, .rejected-status {
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 5px;
+        min-width: 90px;
+        text-align: center;
+    }
+    
+    .pending-status {
+        color: var(--color-info);
+        background-color: rgba(33, 150, 243, 0.1);
+    }
+    
+    .accepted-status {
+        color: var(--color-success);
+        background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .rejected-status {
+        color: var(--color-danger);
+        background-color: rgba(244, 67, 54, 0.1);
+    }
+
+    .request-card.accepted { border-left: 5px solid var(--color-success); }
+    .request-card.rejected { border-left: 5px solid var(--color-danger); }
+    .request-card.pending { border-left: 5px solid var(--color-info); }
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        border: 2px dashed var(--color-light-gray);
+        border-radius: 10px;
+        background-color: var(--color-white);
+        color: var(--color-medium-blue);
+        margin-top: 20px;
+    }
+
+    .message-box {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--color-dark-blue);
+        color: var(--color-white);
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+        min-width: 250px;
+    }
+
+    .message-box.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .message-box.error {
+        background-color: var(--color-danger);
+    }
+
+    .message-box.success {
+        background-color: var(--color-success);
+    }
+
+    @media (max-width: 768px) {
+        .requests-container {
+            margin: 20px 10px;
+            padding: 10px;
+        }
+
+        .tab-btn {
+            font-size: 1rem;
+            padding: 10px 15px;
+            margin: 0 5px;
+        }
+
+        .request-card {
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .request-details {
+            margin-bottom: 10px;
+        }
+
+        .request-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .avatar-small {
+            margin-bottom: 10px;
+        }
+        
+        .top-navbar { padding: 10px 20px; }
+        .top-navbar .nav-links { gap: 10px; font-size: 0.9rem;}
+        .top-navbar .logo { font-size: 1.5rem; }
+    }
+</style>
+</head>
+<body>
+
+<div class="top-navbar">
+    <a href="home.html" class="logo">
+        <span class="skill">SKILL</span><span class="swap">SWAP</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="chats.html">CHATS</a></li>
+        <li><a href="requests.html">REQUESTS</a></li>
+        <li class="dropdown">
+            <a href="#">ABOUT US<i class="fas fa-caret-down"></i></a>
+            <div class="dropdown-menu">
+                <a href="home.html#why-choose-us">Why Choose Us?</a>
+                <a href="home.html#what-we-do">What We Do</a>
+                <a href="home.html#our-team">Our Team</a>
+            </div>
+        </li>
+        <li><a href="profile.html">PROFILE</a></li>
+    </ul>
+</div>
+
+<div class="requests-container">
+    <div class="requests-header">
+        <h2>Your Match Requests</h2>
+    </div>
+
+    <div class="tab-navigation">
+        <button id="received-tab-btn" class="tab-btn active">
+            Received <span id="received-count" class="count">0</span>
+        </button>
+        <button id="sent-tab-btn" class="tab-btn">
+            Sent <span id="sent-count" class="count">0</span>
+        </button>
+    </div>
+
+    <div id="received-requests" class="tab-content">
+        <div id="received-list" class="request-list">
+            </div>
+        <div id="received-empty" class="empty-state hidden">
+            <div style="font-size: 3rem; margin-bottom: 15px;">📥</div>
+            <h3>No Incoming Requests</h3>
+            <p>Your inbox is clean! Keep your profile updated to get more matches.</p>
+        </div>
+    </div>
+
+    <div id="sent-requests" class="tab-content" style="display: none;">
+        <div id="sent-list" class="request-list">
+            </div>
+        <div id="sent-empty" class="empty-state hidden">
+            <div style="font-size: 3rem; margin-bottom: 15px;">✉️</div>
+            <h3>No Sent Requests</h3>
+            <p>You haven't sent any match requests yet. Go find someone to learn from!</p>
+        </div>
+    </div>
+</div>
+
+<div id="messageBox" class="message-box" role="alert"></div>
+
+<script type="module" src="./requests.js"></script>
+
+</body>
+</html>
