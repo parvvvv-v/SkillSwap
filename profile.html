@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile - SkillSwap</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
         --color-orange: #ff7d2a; 
         --color-white: #ffffff; 
-        --color-dark-blue: #2c3e50; 
+        --color-dark-blue: #1a2a3a; 
+        --color-medium-blue: #2c4a68;
         --color-light-gray: #e0e0e0;
         --color-bg-light: #f1f6fc;
         --color-text: #333333;
@@ -24,133 +26,89 @@
       background-color: var(--color-bg-light);
       color: var(--color-text);
       line-height: 1.6;
+      padding-top: var(--navbar-height); 
     }
 
-    .navbar {
-        position: fixed;
+    .top-navbar {
+        position: fixed; 
         top: 0;
         left: 0;
+        z-index: 1000;
         width: 100%;
-        height: var(--navbar-height);
         background-color: var(--color-dark-blue);
-        color: var(--color-white);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         display: flex;
         justify-content: space-between; 
         align-items: center;
-        padding: 0 30px 0 0px; 
-        box-shadow: var(--shadow-elevation);
-        z-index: 1000;
-        gap: 20px; 
-    }
-
-    .logo a {
+        padding: 15px 40px;
+        box-sizing: border-box;
         color: var(--color-white);
-        text-decoration: none;
-        font-size: 1.5rem;
+        height: var(--navbar-height); 
+    }
+    .top-navbar .logo {
+        font-size: 1.8rem;
         font-weight: 800;
-        letter-spacing: 1px;
-        margin-left: 30px;
+        text-decoration: none;
+        letter-spacing: -0.5px;
     }
-
-    .logo span {
-        color: var(--color-orange);
-    }
-
-    .nav-links {
+    .top-navbar .logo .skill { color: var(--color-orange); } 
+    .top-navbar .logo .swap { color: var(--color-white); } 
+    .top-navbar .nav-links {
         display: flex;
-        align-items: center;
-        flex-grow: 0; 
-        gap: 10px; 
-        margin-left: auto; 
+        gap: 20px; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
     }
-    
-    .nav-link, .dropdown-toggle {
+    .top-navbar .nav-links a {
         color: var(--color-white);
         text-decoration: none;
+        font-size: 0.95rem; 
         font-weight: 600;
-        padding: 8px 10px; 
-        border-radius: 0; 
-        transition: background-color 0.3s;
-        border: none;
-        background: none;
-        cursor: pointer;
-        font-family: inherit;
-        font-size: 1rem;
+        transition: color 0.3s ease;
         white-space: nowrap; 
-        text-transform: uppercase; 
     }
-
-    .nav-link:hover, .dropdown-toggle:hover {
-        background-color: rgba(255, 255, 255, 0.1); 
-    }
-    
+    .top-navbar .nav-links a:hover { color: var(--color-orange); }
     .dropdown {
         position: relative;
-    }
-    
-    .nav-link.active, .dropdown:hover .dropdown-toggle, .dropdown-toggle.active {
-        background-color: #243444; 
-    }
-    
-    .arrow-down {
-        margin-left: 5px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
         display: inline-block;
-        padding: 3px;
-        transform: rotate(45deg);
-        -webkit-transform: rotate(45deg);
-        margin-left: 5px;
-        font-size: 0.8rem;
-        vertical-align: middle;
     }
-    
-    .dropdown-toggle {
-        height: var(--navbar-height); 
-        display: flex;
-        align-items: center;
-    }
-    
-    .dropdown-content {
+    .dropdown-menu {
         display: none;
         position: absolute;
-        background-color: #34495e; 
-        min-width: 180px; 
-        box-shadow: var(--shadow-elevation);
-        z-index: 1;
         top: 100%; 
-        right: 0; 
-        left: auto; 
-        border-radius: 0 0 6px 6px; 
+        left: 0;
+        background-color: var(--color-medium-blue); 
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+        z-index: 10;
+        border-radius: 5px;
         overflow: hidden;
-        padding: 0;
-        margin-right: -10px; 
+        animation: fadeIn 0.3s ease-out;
+        transform-origin: top;
     }
-
-    .dropdown-content a {
+    .dropdown-menu a {
         color: var(--color-white);
         padding: 12px 16px;
         text-decoration: none;
         display: block;
+        text-align: left;
         font-weight: 400;
-        transition: background-color 0.3s;
-        text-transform: none; 
-        white-space: nowrap;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
     }
-
-    .dropdown-content a:hover {
-        background-color: rgba(255, 125, 42, 0.2); 
-        color: var(--color-white); 
+    .dropdown-menu a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-dark-blue);
     }
-    
-    .dropdown:hover .dropdown-content {
+    .dropdown:hover .dropdown-menu {
         display: block;
     }
-    
-    .logout-btn {
-        display: none;
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-
+  
     .profile-container {
       padding-top: calc(var(--navbar-height) + 40px);
       padding-bottom: 40px;
@@ -201,9 +159,8 @@
     .modal-close-btn { display: block; width: 100%; margin-top: 25px; padding: 12px; background-color: var(--color-dark-blue); color: var(--color-white); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background-color 0.3s; }
 
     @media (max-width: 800px) {
-        .nav-links {
-            display: flex; 
-        }
+        .top-navbar .nav-links { gap: 10px; font-size: 0.9rem;}
+        .top-navbar .logo { font-size: 1.5rem; }
     }
     @media (max-width: 650px) {
       .profile-card {
@@ -218,28 +175,24 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo">
-            <a href="home.html">SKILL<span>SWAP</span></a>
-        </div>
-        
-        <div class="nav-links">
-            <a href="chats.html" class="nav-link">CHATS</a>
-            <a href="requests.html" class="nav-link">REQUESTS</a>
-            
-            <div class="dropdown" id="about-us-dropdown">
-                <button class="dropdown-toggle">
-                    ABOUT US <i class="arrow-down"></i> </button>
-                <div class="dropdown-content">
+    <div class="top-navbar">
+        <a href="home.html" class="logo">
+            <span class="skill">SKILL</span><span class="swap">SWAP</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="chats.html">CHATS</a></li>
+            <li><a href="requests.html">REQUESTS</a></li>
+            <li class="dropdown">
+                <a href="#">ABOUT US<i class="fas fa-caret-down"></i></a>
+                <div class="dropdown-menu">
                     <a href="home.html#why-choose-us">Why Choose Us?</a>
                     <a href="home.html#what-we-do">What We Do</a>
                     <a href="home.html#our-team">Our Team</a>
                 </div>
-            </div>
-            
-            <a href="profile.html" class="nav-link active">PROFILE</a>
-        </div>
-    </nav>
+            </li>
+            <li><a href="profile.html">PROFILE</a></li>
+        </ul>
+    </div>
 
     <div class="profile-container">
         <div class="profile-card">
@@ -247,7 +200,7 @@
             <form id="profileForm">
                 
                 <div class="form-group avatar-group">
-                    <img id="avatarPreview" src="G1.jpg" alt="Avatar Preview" class="avatar-preview">
+                    <img id="avatarPreview" src="https://i.ibb.co/hJ0vB10C/B1.jpg" alt="Avatar Preview" class="avatar-preview">
                     
                     <button type="button" id="openAvatarModalBtn" class="change-avatar-btn">
                         Select Avatar
@@ -271,7 +224,7 @@
 
                 <button type="submit" id="saveBtn" class="save-btn">Save Changes</button>
             </form>
-          <a href="index.html"><button type="submit" id="saveBtn" class="save-btn">LogOut</a>
+            <a href="index.html"><button type="submit" id="logout-btn" class="save-btn">LogOut</button></a>
         </div>
     </div>
     
