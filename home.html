@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSwap - Your Learning Platform</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --color-orange: #ff7d2a; 
+        --color-white: #ffffff;
+        --color-dark-blue: #1a2a3a; 
+        --color-medium-blue: #2c4a68; 
+        --color-light-gray: #e0e0e0;
+        --color-bg-light: #f1f6fc; 
+        --color-bg-team: #e6eaf0;
+        --color-light-blue-overlay: rgba(30, 144, 255, 0.4); 
+        --navbar-height: 60px; 
+    }
+    
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--color-white);
+        color: #333;
+        min-height: 200vh;
+        scroll-behavior: smooth; 
+    }
+
+    .top-navbar {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        width: 100%;
+        background-color: var(--color-dark-blue);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        padding: 15px 40px;
+        box-sizing: border-box;
+        color: var(--color-white);
+        height: var(--navbar-height); 
+        transition: all 0.5s ease-in-out; 
+    }
+
+    .top-navbar.scrolled {
+        justify-content: center; 
+    }
+    .top-navbar .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+        transition: all 0.5s ease-in-out; 
+    }
+    .top-navbar .logo .skill { color: var(--color-orange); }
+    .top-navbar .logo .swap { color: var(--color-white); }
+    .top-navbar.scrolled .nav-links {
+        opacity: 0; 
+        visibility: hidden; 
+        max-width: 0; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0.4s;
+    }
+    .top-navbar .nav-links {
+        display: flex;
+        gap: 20px; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+        opacity: 1; 
+        visibility: visible;
+        max-width: 700px; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0s;
+    }
+    .top-navbar .nav-links a {
+        color: var(--color-white);
+        text-decoration: none;
+        font-size: 0.95rem; 
+        font-weight: 600;
+        transition: color 0.3s ease;
+        white-space: nowrap; 
+    }
+    .top-navbar .nav-links a:hover { color: var(--color-orange); }
+    .hero-container { padding-top: var(--navbar-height); }
+    
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        background-color: var(--color-medium-blue); 
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+        z-index: 10;
+        border-radius: 5px;
+        overflow: hidden;
+        animation: fadeIn 0.3s ease-out;
+        transform-origin: top;
+    }
+    .dropdown-menu a {
+        color: var(--color-white);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+        font-weight: 400;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .dropdown-menu a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-dark-blue);
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .video-background-container {
+        position: relative;
+        width: 100%;
+        height: calc(100vh - var(--navbar-height)); 
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--color-white);
+        text-align: center;
+    }
+
+    .video-background-container iframe {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw; 
+        height: 100vh;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1; 
+        transform: translate(-50%, -50%) scale(1.5); 
+        pointer-events: none; 
+        background-size: cover;
+    }
+    
+    .video-background-container iframe:not([src]) {
+        background-image: url('https://img.youtube.com/vi/EyivacpRVZA/hqdefault.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+
+    .video-background-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6); 
+        z-index: 0; 
+    }
+    
+    .video-content-overlay {
+        position: relative; 
+        z-index: 2; 
+        padding: 20px;
+        max-width: 800px;
+    }
+    .video-content-overlay h1 {
+        font-size: 3.8rem; 
+        font-weight: 800;
+        margin-top: 0;
+        margin-bottom: 30px;
+        line-height: 1.1;
+    }
+    .video-content-overlay h1 .highlight { color: var(--color-orange); }
+    .action-button {
+        background-color: var(--color-orange);
+        color: var(--color-white);
+        padding: 18px 35px;
+        border: none;
+        border-radius: 8px; 
+        font-size: 1.2rem; 
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none; 
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        display: inline-block; 
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3); 
+        letter-spacing: 1px; 
+        text-transform: uppercase;
+    }
+
+    .action-button:hover {
+        background-color: #e69d30; 
+        transform: translateY(-3px); 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.4); 
+    }
+
+    .search-bar-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 600px; 
+        margin: 0 auto;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    .tutor-search-input {
+        flex-grow: 1;
+        padding: 18px 20px;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+        outline: none;
+        height: 100%;
+    }
+    .tutor-search-input::placeholder {
+        color: #888;
+    }
+    .tutor-search-button { 
+        background-color: var(--color-orange);
+        color: var(--color-white);
+        padding: 18px 25px;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .tutor-search-button:hover {
+        background-color: #e69d30; 
+        transform: none; 
+    }
+
+    .section {
+        padding: 80px 40px;
+        text-align: center;
+        scroll-margin-top: var(--navbar-height); 
+    }
+    .section h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 50px;
+        color: var(--color-dark-blue);
+        text-transform: uppercase;
+    }
+    
+    .why-choose-us { background-color: var(--color-bg-light); }
+    .why-choose-us h2 { color: var(--color-dark-blue); }
+    .why-choose-us-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .reason-card {
+        background-color: var(--color-white); 
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
+        text-align: left;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-left: 5px solid var(--color-orange); 
+    }
+    .reason-card:hover {
+        transform: translateY(-7px); 
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); 
+    }
+    .reason-card i {
+        font-size: 2.8rem; 
+        color: var(--color-orange);
+        margin-bottom: 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: rgba(255, 125, 42, 0.1); 
+    }
+    .reason-card h3 {
+        font-size: 1.4rem; 
+        font-weight: 700;
+        margin-top: 0;
+        color: var(--color-dark-blue);
+    }
+    .reason-card p {
+        font-size: 1rem;
+        color: #555; 
+        line-height: 1.6;
+    }
+    .what-we-do {
+        background-color: var(--color-dark-blue);
+        color: var(--color-white);
+        padding: 100px 40px;
+    }
+    .what-we-do h2 {
+        color: var(--color-white);
+        margin-bottom: 70px;
+    }
+    .what-we-do-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .feature-item {
+        flex: 1 1 300px;
+        background-color: var(--color-medium-blue);
+        border-radius: 15px;
+        padding: 40px 25px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        transition: background-color 0.3s, transform 0.3s;
+        border-bottom: 5px solid var(--color-orange);
+    }
+    .feature-item:hover {
+        transform: translateY(-5px);
+        background-color: #3f6892;
+    }
+    .feature-item i {
+        font-size: 3.5rem;
+        color: var(--color-orange);
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 5px rgba(255, 125, 42, 0.5));
+    }
+    .feature-item h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 0;
+        color: var(--color-white);
+    }
+    .feature-item p {
+        font-size: 1rem;
+        color: #c0c0c0;
+        line-height: 1.6;
+    }
+
+    .our-team {
+        background-color: var(--color-bg-team); 
+    }
+
+    .team-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center; 
+        gap: 30px;
+        max-width: 1200px; 
+        margin: 0 auto;
+        overflow-x: auto;
+        padding-bottom: 10px; 
+    }
+
+    .team-member-card {
+        background-color: var(--color-white);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 280px;
+        flex-shrink: 0; 
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    .team-member-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%; 
+        object-fit: cover;
+        object-position: center; 
+        
+        margin: 0 auto 20px auto;
+        border: 4px solid var(--color-orange);
+        transition: transform 0.3s ease;
+    }
+    
+    .team-member-card:hover .profile-photo {
+        transform: scale(1.05);
+    }
+    .team-member-card h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin: 10px 0 5px 0;
+        color: var(--color-dark-blue);
+    }
+    .team-member-card p {
+        font-size: 1rem;
+        color: var(--color-orange);
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .social-links a {
+        color: var(--color-dark-blue);
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: #f1f6fc;
+        transition: all 0.3s ease;
+    }
+    .social-links a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-white);
+        transform: scale(1.1);
+    }
+
+    @media (max-width: 900px) {
+        .top-navbar { padding: 10px 20px; }
+        .top-navbar .nav-links { gap: 10px; font-size: 0.9rem;}
+        .top-navbar .logo { font-size: 1.5rem; }
+        .video-content-overlay h1 { font-size: 3rem; }
+        .section { padding: 60px 20px; }
+        .why-choose-us h2, .what-we-do h2, .our-team h2 { font-size: 2rem; margin-bottom: 40px; }
+    }
+
+    @media (max-width: 600px) {
+        .team-grid {
+            flex-wrap: wrap; 
+            overflow-x: hidden;
+        }
+        
+        .top-navbar .nav-links { display: none; }
+        .top-navbar.scrolled { justify-content: center; }
+        .top-navbar.scrolled .nav-links { display: none; }
+        .video-content-overlay h1 { font-size: 2.2rem; }
+        .reason-card, .team-member-card { text-align: center; }
+        .reason-card i { margin: 0 auto 15px auto; }
+        .dropdown { 
+             display: inline-block;
+        }
+        
+        .search-bar-container {
+            flex-direction: column; 
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+        }
+        .tutor-search-input {
+            width: 100%;
+            padding: 15px 15px;
+            text-align: center;
+            border-radius: 5px 5px 0 0; 
+        }
+        .tutor-search-button {
+            width: 100%;
+            padding: 15px 15px;
+            border-radius: 0 0 5px 5px;
+        }
+        
+    }
+
+</style>
+</head>
+<body>
+
+<div class="top-navbar">
+    <a href="#" class="logo">
+        <span class="skill">SKILL</span><span class="swap">SWAP</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="chats.html">CHATS</a></li>
+        <li><a href="requests.html">REQUESTS</a></li>
+        <li class="dropdown">
+            <a href="#">ABOUT US<i class="fas fa-caret-down"></i></a>
+            <div class="dropdown-menu">
+                <a href="#why-choose-us">Why Choose Us?</a>
+                <a href="#what-we-do">What We Do</a>
+                <a href="#our-team">Our Team</a>
+            </div>
+        </li>
+        <li><a href="profile.html">PROFILE</a></li>
+    </ul>
+</div>
+
+<div class="hero-container" id="home-section">
+    <div class="video-background-container">
+        <iframe 
+            id="bg-youtube-iframe"
+            data-src="https://www.youtube-nocookie.com/embed/EyivacpRVZA?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&mute=1&playlist=EyivacpRVZA" 
+            src="" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media; gyroscope;" 
+            allowfullscreen
+            loading="lazy"
+        ></iframe>
+        
+        <div class="video-content-overlay">
+            <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--color-light-gray);">SKILL TRADING PLATFORM</p>
+            <h1><span class="highlight">YOUR</span> CLASSROOM</h1>
+            
+          
+            <a href="tutor_match.html" class="action-button">
+                FIND A TUTOR
+            </a>
+            </div>
+            </div>
+    </div>
+</div>
+
+<div class="section why-choose-us" id="why-choose-us">
+    <h2>Why choose <span class="skill">SKILL</span><span class="swap" style="color: var(--color-orange);">SWAP</span>?</h2>
+    <div class="why-choose-us-grid">
+        
+        <div class="reason-card">
+            <i class="fas fa-handshake"></i>
+            <h3>True Skill Exchange</h3>
+            <p>Swap your existing expertise for new skills, creating a decentralized and mutually beneficial learning environment. No direct currency needed, just time and knowledge.</p>
+        </div>
+
+        <div class="reason-card">
+            <i class="fas fa-users"></i> 
+            <h3>Verified Community</h3>
+            <p>Connect with a growing network of vetted professionals and enthusiasts. Our rating system ensures quality, reliable teaching and learning experiences.</p>
+        </div>
+
+        <div class="reason-card">
+            <i class="fas fa-globe"></i>
+            <h3>Global and Local Access</h3>
+            <p>Whether you prefer a virtual class across continents or a real-world meeting nearby, SkillSwap facilitates connections that suit your learning style and schedule.</p>
+        </div>
+        
+    </div>
+</div>
+
+<div class="section what-we-do" id="what-we-do">
+    <h2>What We <span style="color: var(--color-orange);">Do</span></h2>
+    <div class="what-we-do-grid">
+        
+        <div class="feature-item">
+            <i class="fas fa-chalkboard-user"></i>
+            <h3>Peer-to-Peer Learning</h3>
+            <p>We facilitate direct connections between individuals. Find a user who teaches what you want and who wants to learn what you offer, ensuring a balanced exchange.</p>
+        </div>
+
+        <div class="feature-item">
+            <i class="fas fa-chart-line"></i>
+            <h3>Growth Tracking</h3>
+            <p>Our intuitive dashboard tracks your learning journey, skill acquisitions, and teaching hours, helping you visualize and certify your personal and professional growth.</p>
+        </div>
+
+        <div class="feature-item">
+            <i class="fas fa-lock"></i>
+            <h3>Secure Interactions</h3>
+            <p>All user identities and skill verifications are securely handled. We provide safe chat and scheduling tools so you can focus purely on the knowledge exchange.</p>
+        </div>
+        
+    </div>
+    <a href="#" class="action-button" style="margin-top: 50px;">EXPLORE PLATFORM</a>
+    </div>
+
+<div class="section our-team" id="our-team">
+    <h2>Meet Our <span style="color: var(--color-orange);">Team</span></h2>
+    <div class="team-grid">
+        
+        <div class="team-member-card">
+            <img 
+                src="https://i.ibb.co/DDd3Cq5B/IMG-20241103-WA0067-2.png" 
+                class="profile-photo" 
+                alt="Parv Bansal"
+            >
+            <h3>Parv Bansal</h3>
+            <p>Lead Developer</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/parv-bansal-8472b6282/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/dumb.parvv_?igsh=NXVtNXIxZDhtaWYz" aria-label="Instagram"><i class="fab fa-instagram"></i></a> 
+                <a href="https://github.com/parvvvv-v" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+
+        <div class="team-member-card">
+            <img 
+                src="https://i.ibb.co/tPb1S1Wf/Whats-App-Image-2025-10-29-at-23-49-49-3a82d7cb-removebg-preview.png" 
+                class="profile-photo" 
+                alt="Prince Mehta"
+            >
+            <h3>Prince Mehta</h3>
+            <p>Backend Developer</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/prince-kumar001?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/_prince.mehta_?igsh=bjRraXl3cmd6bTh5" aria-label="Instagram"><i class="fab fa-instagram"></i></a> 
+                <a href="https://github.com/PRINCE-MEHTA91" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        
+        <div class="team-member-card">
+            <img 
+                src="https://i.ibb.co/r2wmZdDW/Whats-App-Image-2025-10-30-at-00-37-06-32b671ac-removebg-preview.png" 
+                class="profile-photo" 
+                alt="Harsh Goyal"
+            >
+            <h3>Harsh Goyal</h3>
+            <p>UI/UX Designer</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/harsh-goyal-91969b293/" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.instagram.com/harsh__3085?igsh=dzdlY2lrZG1qd2gw" aria-label="Instagram"><i class="fab fa-instagram"></i></a> 
+                <a href="https://github.com/harsh3085" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbar = document.querySelector('.top-navbar');
+        const scrollThreshold = 100; 
+        const iframe = document.getElementById('bg-youtube-iframe');
+        const dataSrc = iframe.getAttribute('data-src');
+
+        setTimeout(() => {
+            if (dataSrc) {
+                iframe.setAttribute('src', dataSrc);
+            }
+        }, 2000); 
+
+        function handleScroll() {
+            if (window.scrollY > scrollThreshold) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }
+        window.addEventListener('scroll', handleScroll);
+        handleScroll();
+    });
+</script>
+
+</body>
+</html>
