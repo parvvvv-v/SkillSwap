@@ -1,5 +1,5 @@
 import { auth, db } from "./firebase_config.js"; 
-import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
 
@@ -8,7 +8,7 @@ const skillsKnownTextarea = document.getElementById('skillsKnown');
 const skillsToLearnTextarea = document.getElementById('skillsToLearn');
 const avatarPreview = document.getElementById('avatarPreview');
 const saveBtn = document.getElementById('saveBtn');
-const logoutBtn = document.getElementById('logout-btn');
+const logoutBtn = document.getElementById('logout-btn'); 
 const messageBox = document.getElementById('messageBox');
 const openAvatarModalBtn = document.getElementById('openAvatarModalBtn');
 const closeAvatarModalBtn = document.getElementById('closeAvatarModalBtn');
@@ -17,122 +17,135 @@ const avatarGrid = document.getElementById('avatarGrid');
 
 let currentUserId = null;
 let unsubscribeProfile = null;
+
 const AVATAR_OPTIONS = [
-    'G1.jpg',
-    'G2.jpg',
-    'B1.jpg', 
-    'B2.jpg', 
-    'B3.jpg', 
+    'https://i.ibb.co/hJ0vB10C/B1.jpg', 
+    'https://i.ibb.co/7NV8s9BV/B2.jpg', 
+    'https://i.ibb.co/N2m8JGnV/B3.jpg', 
+    'https://i.ibb.co/84GrQZmB/G1.jpg',
+    'https://i.ibb.co/L50n158r/G2.jpg',
+    'https://i.ibb.co/2d1hVj5S/G3.jpg'
 ];
 
-const DEFAULT_AVATAR = AVATAR_OPTIONS[0];
+function cleanAndSplitSkills(skillsString) {
+    if (!skillsString) return [];
+    return skillsString
+        .split(/[,\s]+/)
+        .map(skill => skill.toLowerCase().trim()) 
+        .filter(skill => skill.length > 0) 
+        .map(skill => skill.charAt(0).toUpperCase() + skill.slice(1)); 
+}
 
-function showMessage(msg) {
-    messageBox.textContent = msg;
-    messageBox.classList.add('show');
+
+function showMessage(message, isError = false) {
+    messageBox.textContent = message;
+    messageBox.className = 'message-box show';
+    if (isError) {
+        messageBox.classList.add('error');
+    } else {
+        messageBox.classList.remove('error');
+    }
+
     setTimeout(() => {
         messageBox.classList.remove('show');
     }, 3000);
 }
 
-function setButtonState(btn, text, isDisabled) {
-    btn.innerHTML = isDisabled ? '<i class="fas fa-spinner fa-spin"></i> Saving...' : text;
-    btn.disabled = isDisabled;
-    btn.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
-}
+async function loadProfile(uid) {
+    const userDocRef = doc(db, "users", uid);
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUserId = user.uid;
-        loadUserProfile(currentUserId);
-    } else {
-        window.location.href = 'index.html';
-    }
-});
-
-async function loadUserProfile(uid) {
     try {
-        const userDocRef = doc(db, "users", uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        let avatarUrl = DEFAULT_AVATAR;
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            
+            usernameInput.value = data.username || '';
+            skillsKnownTextarea.value = Array.isArray(data.skillsKnown) ? data.skillsKnown.join(', ') : data.skillsKnown || '';
+            skillsToLearnTextarea.value = Array.isArray(data.skillsToLearn) ? data.skillsToLearn.join(', ') : data.skillsToLearn || '';
+            
+            const avatarUrl = data.avatarUrl || AVATAR_OPTIONS[0];
+            avatarPreview.src = avatarUrl;
+            avatarPreview.dataset.selectedUrl = avatarUrl;
 
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            usernameInput.value = userData.username || '';
-            skillsKnownTextarea.value = userData.skillsKnown || '';
-            skillsToLearnTextarea.value = userData.skillsToLearn || '';
-
-            if (userData.avatarUrl && AVATAR_OPTIONS.includes(userData.avatarUrl)) {
-                avatarUrl = userData.avatarUrl;
-            } else if (userData.avatarUrl) {
-                avatarUrl = userData.avatarUrl;
-            }
-        } 
-        
-        avatarPreview.src = avatarUrl;
-        avatarPreview.dataset.selectedUrl = avatarUrl; 
-
+        } else {
+            await setDoc(userDocRef, {
+                username: '',
+                skillsKnown: [],
+                skillsToLearn: [],
+                avatarUrl: AVATAR_OPTIONS[0],
+                createdAt: new Date().toISOString()
+            }, { merge: true });
+            avatarPreview.src = AVATAR_OPTIONS[0];
+            avatarPreview.dataset.selectedUrl = AVATAR_OPTIONS[0];
+            showMessage("Welcome! Please complete your profile.", false);
+        }
     } catch (error) {
-        console.error("Error loading user profile:", error);
-        showMessage("Error loading profile data.");
+        console.error("Error loading profile:", error);
+        showMessage("Failed to load profile data. Please refresh.", true);
     }
 }
 
-document.getElementById('profileForm').addEventListener('submit', async function(event) {
+async function saveProfile(event) {
     event.preventDefault();
     if (!currentUserId) {
-        showMessage("User not authenticated. Please log in again.");
+        showMessage("You must be logged in to save your profile.", true);
+        return;
+    }
+    
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+
+    const newUsername = usernameInput.value.trim();
+    const rawSkillsKnown = skillsKnownTextarea.value.trim();
+    const rawSkillsToLearn = skillsToLearnTextarea.value.trim();
+    const selectedAvatarUrl = avatarPreview.dataset.selectedUrl;
+
+    if (!newUsername) {
+        showMessage("Username cannot be empty.", true);
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.disabled = false;
         return;
     }
 
-    setButtonState(saveBtn, '<i class="fas fa-save"></i> Save Changes', true);
-
+    const skillsKnownArray = cleanAndSplitSkills(rawSkillsKnown);
+    const skillsToLearnArray = cleanAndSplitSkills(rawSkillsToLearn);
+    
     try {
-        const avatarUrl = avatarPreview.dataset.selectedUrl;
-        
         const userDocRef = doc(db, "users", currentUserId);
+        await updateDoc(userDocRef, {
+            username: newUsername,
+            skillsKnown: skillsKnownArray, 
+            skillsToLearn: skillsToLearnArray,
+            avatarUrl: selectedAvatarUrl
+        });
         
-        const profileData = {
-            username: usernameInput.value.trim(),
-            skillsKnown: skillsKnownTextarea.value.trim(),
-            skillsToLearn: skillsToLearnTextarea.value.trim(),
-            avatarUrl: avatarUrl
-        };
-        
-        await setDoc(userDocRef, profileData, { merge: true });
-
-        showMessage("Profile updated successfully!");
+        showMessage("Profile saved successfully!", false);
 
     } catch (error) {
-        console.error("Error updating profile:", error);
-        showMessage("Failed to update profile. Check console for details.");
+        console.error("Error saving profile:", error);
+        showMessage("Failed to save profile. Please try again.", true);
     } finally {
-        setButtonState(saveBtn, '<i class="fas fa-save"></i> Save Changes', false);
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.disabled = false;
     }
-});
+}
+
 
 function renderAvatarOptions() {
     avatarGrid.innerHTML = '';
     const currentSelectedUrl = avatarPreview.dataset.selectedUrl;
 
     AVATAR_OPTIONS.forEach(url => {
-        const isSelected = url === currentSelectedUrl;
         const img = document.createElement('img');
         img.src = url;
         img.alt = 'Avatar Option';
-        img.className = 'avatar-option';
-        
-        if (isSelected) {
+        img.classList.add('avatar-option');
+        if (url === currentSelectedUrl) {
             img.classList.add('selected');
         }
-        
-        img.setAttribute('data-url', url);
 
         img.addEventListener('click', () => {
-            document.querySelectorAll('.avatar-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
+            avatarGrid.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
             img.classList.add('selected');
             
             avatarPreview.src = url;
@@ -171,7 +184,19 @@ if (logoutBtn) {
             window.location.href = 'index.html'; 
         }).catch((error) => {
             console.error("Logout failed:", error);
-            showMessage("Logout failed. Try again.");
+            showMessage("Logout failed. Please try again.", true);
         });
     });
 }
+
+document.getElementById('profileForm').addEventListener('submit', saveProfile);
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUserId = user.uid;
+        loadProfile(user.uid);
+    } else {
+        window.location.href = 'index.html';
+    }
+});
