@@ -1,19 +1,8 @@
-
 import { auth, db } from "./firebase_config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  addDoc,
-  serverTimestamp,
-  orderBy,
-  doc,
-  getDoc,
-  updateDoc,
-  deleteDoc,
-  getDocs,
+  collection, query, where, onSnapshot, addDoc, serverTimestamp,
+  orderBy, doc, getDoc, updateDoc, deleteDoc, getDocs, arrayUnion, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 const chatList = document.getElementById("chatList");
@@ -22,446 +11,311 @@ const searchInput = document.getElementById("searchInput");
 
 let currentUser = null;
 let currentChatId = null;
-let unsubscribe = null;
+let unsubscribeMessages = null;
+let chatsUnsub = null;
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user;
-    loadChats();
-  } else {
-    window.location.href = "login.html";
-  }
+const directUserId = new URLSearchParams(window.location.search).get("user");
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return (window.location.href = "login.html");
+  currentUser = user;
+  loadChats();
+  if (directUserId) openChatDirect(directUserId);
 });
 
 async function loadChats() {
-  const chatsRef = collection(db, "chats");
-  const q = query(chatsRef, where("users", "array-contains", currentUser.uid));
+  chatList.innerHTML = "";
 
-  // Add SkillSwap help chat
-  const skillSwapChatItem = document.createElement("div");
-  skillSwapChatItem.classList.add("chat-item");
-  skillSwapChatItem.dataset.chatId = "skillswap_help_chat";
-  skillSwapChatItem.dataset.otherUserId = "skillswap_bot";
+  chatList.appendChild(staticChat({
+    avatar: "https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg",
+    name: "SkillSwap",
+    preview: "Welcome to SkillSwap!",
+    chatId: "skillswap_help_chat",
+    otherId: "skillswap_bot"
+  }));
 
-  skillSwapChatItem.innerHTML = `
-    <div class="chat-avatar">
-      <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?size=626&ext=jpg&ga=GA1.1.1141335507.1718841600&semt=sph" alt="Avatar">
-    </div>
-    <div class="chat-info">
-      <div class="chat-header-info">
-        <span class="chat-name">SkillSwap</span>
-        <span class="chat-time"></span>
-      </div>
-      <div class="chat-preview">Welcome to SkillSwap!</div>
-    </div>
-  `;
-  chatList.appendChild(skillSwapChatItem);
+  chatList.appendChild(staticChat({
+    avatar: "https://www.w3schools.com/howto/img_avatar.png",
+    name: "Demo User",
+    preview: "This is a demo chat.",
+    chatId: "demo_chat",
+    otherId: "demo_user"
+  }));
 
-  skillSwapChatItem.addEventListener("click", () => {
-    openChat("skillswap_help_chat", "skillswap_bot", "SkillSwap", "https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?size=626&ext=jpg&ga=GA1.1.1141335507.1718841600&semt=sph");
-  });
+  const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid));
 
-  // Add Demo User Chat
-  const demoChatItem = document.createElement("div");
-  demoChatItem.classList.add("chat-item");
-  demoChatItem.dataset.chatId = "demo_chat";
-  demoChatItem.dataset.otherUserId = "demo_user";
+  if (chatsUnsub) chatsUnsub();
 
-  demoChatItem.innerHTML = `
-    <div class="chat-avatar">
-      <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar">
-    </div>
-    <div class="chat-info">
-      <div class="chat-header-info">
-        <span class="chat-name">Demo User</span>
-        <span class="chat-time"></span>
-      </div>
-      <div class="chat-preview">This is a demo chat.</div>
-    </div>
-  `;
-  chatList.appendChild(demoChatItem);
+  chatsUnsub = onSnapshot(q, async snap => {
+    document.querySelectorAll(".real-chat").forEach(e => e.remove());
 
-  demoChatItem.addEventListener("click", () => {
-    openChat("demo_chat", "demo_user", "Demo User", "https://www.w3schools.com/howto/img_avatar.png");
-  });
+    for (const d of snap.docs) {
+      const data = d.data();
+      const otherId = data.users.find(u => u !== currentUser.uid);
+      if (!otherId) continue;
 
+      const uSnap = await getDoc(doc(db, "users", otherId));
+      const u = uSnap.exists() ? uSnap.data() : { username: "User", avatarUrl: null };
 
-  onSnapshot(q, (snapshot) => {
-    snapshot.forEach(async (doc) => {
-      const chat = doc.data();
-      const otherUserId = chat.users.find((uid) => uid !== currentUser.uid);
-      const userDoc = await getDoc(doc(db, "users", otherUserId));
-      const userData = userDoc.data();
-
-      const chatItem = document.createElement("div");
-      chatItem.classList.add("chat-item");
-      chatItem.dataset.chatId = doc.id;
-      chatItem.dataset.otherUserId = otherUserId;
-
-      chatItem.innerHTML = `
-        <div class="chat-avatar">
-          <img src="${userData.profilePicture || 'https://via.placeholder.com/50'}" alt="Avatar">
-        </div>
+      const item = document.createElement("div");
+      item.className = "chat-item real-chat";
+      item.dataset.chatId = d.id;
+      item.innerHTML = `
+        <div class="chat-avatar"><img src="${u.avatarUrl || 'https://via.placeholder.com/48'}"></div>
         <div class="chat-info">
-          <div class="chat-header-info">
-            <span class="chat-name">${userData.name}</span>
-            <span class="chat-time"></span>
-          </div>
-          <div class="chat-preview"></div>
-        </div>
-        <div class="chat-item-actions">
-            <button class="three-dots-btn">⋮</button>
-            <div class="dropdown-menu">
-                <button class="clear-chat-btn">Clear Chat</button>
-                <button class="delete-chat-btn">Delete Chat</button>
-            </div>
+          <div class="chat-name">${escape(u.username)}</div>
+          <div class="chat-preview">${escape(data.lastMessage || "")}</div>
         </div>
       `;
+      item.onclick = () => openChat(d.id, otherId, u.username, u.avatarUrl);
 
-      chatList.appendChild(chatItem);
-
-      const threeDotsBtn = chatItem.querySelector(".three-dots-btn");
-      const dropdownMenu = chatItem.querySelector(".dropdown-menu");
-      const clearChatBtn = chatItem.querySelector(".clear-chat-btn");
-      const deleteChatBtn = chatItem.querySelector(".delete-chat-btn");
-
-      threeDotsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
-      });
-
-      clearChatBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        clearChat(doc.id);
-        dropdownMenu.style.display = "none";
-      });
-
-      deleteChatBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        deleteChat(doc.id);
-        dropdownMenu.style.display = "none";
-      });
-
-      chatItem.addEventListener("click", () => {
-        openChat(doc.id, otherUserId, userData.name, userData.profilePicture);
-      });
-    });
+      chatList.appendChild(item);
+    }
   });
 }
 
-async function clearChat(chatId) {
-  const messagesRef = collection(db, "chats", chatId, "messages");
-  const q = query(messagesRef);
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach(async (doc) => {
-    await deleteDoc(doc.ref);
-  });
+function staticChat({ avatar, name, preview, chatId, otherId }) {
+  const div = document.createElement("div");
+  div.className = "chat-item";
+  div.dataset.chatId = chatId;
+  div.innerHTML = `
+    <div class="chat-avatar"><img src="${avatar}"></div>
+    <div class="chat-info">
+      <div class="chat-name">${name}</div>
+      <div class="chat-preview">${preview}</div>
+    </div>
+  `;
+  div.onclick = () => openChat(chatId, otherId, name, avatar);
+  return div;
 }
 
-async function deleteChat(chatId) {
-    await clearChat(chatId);
-    await deleteDoc(doc(db, "chats", chatId));
-    const chatItem = chatList.querySelector(`[data-chat-id="${chatId}"]`);
-    if (chatItem) {
-        chatItem.remove();
-    }
-    if (currentChatId === chatId) {
-        chatArea.innerHTML = `
-            <div class="empty-state">
-                <div style="font-size: 80px;">💬</div>
-                <h2>Select a chat to start messaging</h2>
-            </div>
-        `;
-        currentChatId = null;
-    }
-}
+async function openChat(chatId, otherUserId, name, pic) {
+  if (unsubscribeMessages) unsubscribeMessages();
 
-const skillSwapBot = {
-  knowledgeBase: {
-    "webpage": "Our webpage is a platform for users to swap skills with each other.",
-    "developer": "This application was created by a team of passionate developers from around the world.",
-    "features": "We offer real-time chat, skill matching, and a secure platform for users to connect.",
-    "benefits": "Users can learn new skills, share their expertise, and connect with like-minded individuals.",
-  },
-  getResponse: function(query) {
-    query = query.toLowerCase();
-    for (const key in this.knowledgeBase) {
-      if (query.includes(key)) {
-        return this.knowledgeBase[key];
-      }
-    }
-    return "I'm sorry, I don't understand that question. Please ask me about our webpage, developer, features, or benefits.";
-  }
-};
-
-function openChat(chatId, otherUserId, otherUserName, otherUserProfilePicture) {
   currentChatId = chatId;
-  if (unsubscribe) {
-    unsubscribe();
-  }
-
-  if (chatId === "skillswap_help_chat") {
-    chatArea.innerHTML = `
-      <div class="chat-area-header">
-        <div class="chat-area-info">
-          <div class="chat-avatar">
-            <img src="${otherUserProfilePicture || 'https://via.placeholder.com/50'}" alt="Avatar">
-          </div>
-          <div>
-            <div class="chat-area-name">${otherUserName}</div>
-            <div class="chat-area-status">online</div>
-          </div>
-        </div>
-        <div class="chat-area-actions">
-          <button>⋮</button>
-        </div>
-      </div>
-      <div class="messages-container" id="messagesContainer">
-        <div class="message received">
-          <div class="message-bubble">
-            <div class="message-text">Welcome to SkillSwap! How can I help you today?</div>
-          </div>
-        </div>
-      </div>
-      <div class="input-area">
-        <input type="text" id="messageInput" placeholder="Ask a question...">
-        <button class="send-btn" id="sendBtn">➤</button>
-      </div>
-    `;
-
-    const messageInput = document.getElementById("messageInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const messagesContainer = document.getElementById("messagesContainer");
-
-    const sendMessageToBot = () => {
-      const userMessage = messageInput.value;
-      if (userMessage.trim() === "") return;
-
-      const userMessageElement = document.createElement("div");
-      userMessageElement.classList.add("message", "sent");
-      userMessageElement.innerHTML = `
-        <div class="message-bubble">
-          <div class="message-text">${userMessage}</div>
-        </div>
-      `;
-      messagesContainer.appendChild(userMessageElement);
-
-      const botResponse = skillSwapBot.getResponse(userMessage);
-      const botMessageElement = document.createElement("div");
-      botMessageElement.classList.add("message", "received");
-      botMessageElement.innerHTML = `
-        <div class="message-bubble">
-          <div class="message-text">${botResponse}</div>
-        </div>
-      `;
-      messagesContainer.appendChild(botMessageElement);
-
-      messageInput.value = "";
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    };
-
-    sendBtn.addEventListener("click", sendMessageToBot);
-    messageInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        sendMessageToBot();
-      }
-    });
-
-    return;
-  }
 
   chatArea.innerHTML = `
     <div class="chat-area-header">
       <div class="chat-area-info">
-        <div class="chat-avatar">
-          <img src="${otherUserProfilePicture || 'https://via.placeholder.com/50'}" alt="Avatar">
-        </div>
+        <img src="${pic || 'https://via.placeholder.com/44'}">
         <div>
-          <div class="chat-area-name">${otherUserName}</div>
+          <div class="chat-area-name">${escape(name)}</div>
           <div class="chat-area-status">online</div>
         </div>
       </div>
+
       <div class="chat-area-actions">
-        <button class="google-meet-btn">
-          <img src="https://img.icons8.com/color/48/google-meet--v1.png" alt="Google Meet" class="meet-icon">
-          Google Meet
+        <button id="meetBtn" title="Start Google Meet">
+          <i class="fas fa-video"></i>
         </button>
-        <button class="swap-request-btn">Confirm Swap</button>
-        <button class="chat-actions-btn">⋮</button>
-        <div class="chat-actions-dropdown" style="display: none;">
-          <button class="clear-chat-btn">Clear Chat</button>
-          <button class="delete-chat-btn">Delete Chat</button>
-        </div>
+        <button id="deleteChatBtn" title="Delete Chat">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
     </div>
-    <div class="messages-container" id="messagesContainer"></div>
+
+    <div id="messagesContainer" class="messages-container"></div>
+
     <div class="input-area">
-      <button>😊</button>
-      <input type="text" id="messageInput" placeholder="Type a message">
-      <button class="send-btn" id="sendBtn">➤</button>
+      <input id="messageInput" placeholder="Type a message">
+      <button id="sendBtn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
   `;
 
-  const messagesContainer = document.getElementById("messagesContainer");
-  const messageInput = document.getElementById("messageInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const swapRequestBtn = document.querySelector(".swap-request-btn");
-  const chatActionsBtn = document.querySelector(".chat-actions-btn");
-  const chatActionsDropdown = document.querySelector(".chat-actions-dropdown");
-  const clearChatBtn = document.querySelector(".clear-chat-btn");
-  const deleteChatBtn = document.querySelector(".delete-chat-btn");
-  const googleMeetBtn = document.querySelector(".google-meet-btn");
+  document.getElementById("meetBtn").onclick = async () => {
+    const code = Math.random().toString(36).substring(2, 12);
+    const url = `https://meet.google.com/${code}`;
+    window.open(url, "_blank");
 
-  chatActionsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    chatActionsDropdown.style.display = chatActionsDropdown.style.display === "none" ? "block" : "none";
-  });
-
-  clearChatBtn.addEventListener("click", () => {
-    clearChat(chatId);
-    chatActionsDropdown.style.display = "none";
-  });
-
-  deleteChatBtn.addEventListener("click", () => {
-    deleteChat(chatId);
-    chatActionsDropdown.style.display = "none";
-  });
-
-  googleMeetBtn.addEventListener("click", () => {
-    const meetLink = "https://meet.google.com/new";
-    sendMessage(`Let's connect on Google Meet: ${meetLink}`);
-    window.open(meetLink, "_blank");
-  });
-
-  const messagesRef = collection(db, "chats", chatId, "messages");
-  const q = query(messagesRef, orderBy("timestamp"));
-
-  unsubscribe = onSnapshot(q, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      if (change.type === "added") {
-        const message = change.doc.data();
-        const messageId = change.doc.id;
-        const messageElement = document.createElement("div");
-        messageElement.id = messageId;
-        messageElement.classList.add("message", message.sender === currentUser.uid ? "sent" : "received");
-        
-        let deleteButtonHTML = '';
-        if (message.sender === currentUser.uid) {
-            deleteButtonHTML = `<button class="delete-message-btn" data-message-id="${messageId}">🗑️</button>`;
-        }
-
-        messageElement.innerHTML = `
-          <div class="message-bubble">
-            <div class="message-text">${message.text}</div>
-            <div class="message-time">${new Date(message.timestamp?.toDate()).toLocaleTimeString()}</div>
-            ${deleteButtonHTML}
-          </div>
-        `;
-        messagesContainer.appendChild(messageElement);
-
-        if (message.sender === currentUser.uid) {
-          const deleteButton = messageElement.querySelector('.delete-message-btn');
-          deleteButton.addEventListener('click', async (e) => {
-              const messageIdToDelete = e.target.dataset.messageId;
-              if (confirm("Are you sure you want to delete this message?")) {
-                  await deleteDoc(doc(db, "chats", chatId, "messages", messageIdToDelete));
-              }
-          });
-        }
-      }
-      if (change.type === "removed") {
-        const messageElement = document.getElementById(change.doc.id);
-        if (messageElement) {
-          messageElement.remove();
-        }
-      }
+    await addDoc(collection(db, "chats", currentChatId, "messages"), {
+      text: `📹 Google Meet started — Join: ${url}`,
+      sender: currentUser.uid,
+      timestamp: serverTimestamp(),
+      meeting: true,
+      meetUrl: url,
+      deletedFor: []
     });
 
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    await updateDoc(doc(db, "chats", currentChatId), {
+      lastMessage: "Started a Google Meet",
+      lastMessageTime: serverTimestamp()
+    });
+  };
 
-    // Update the chat time in the chat list
-    const chatItem = chatList.querySelector(`[data-chat-id="${chatId}"]`);
-    if (chatItem && snapshot.docs.length > 0) {
-      const lastMessage = snapshot.docs[snapshot.docs.length - 1].data();
-      chatItem.querySelector(".chat-time").textContent = new Date(lastMessage.timestamp?.toDate()).toLocaleTimeString();
-    }
-  });
+  document.getElementById("deleteChatBtn").onclick = () => deleteChat(currentChatId);
 
-  sendBtn.addEventListener("click", () => {
-    sendMessage(messageInput.value);
-    messageInput.value = "";
-  });
+  const send = document.getElementById("sendBtn");
+  const input = document.getElementById("messageInput");
+  const container = document.getElementById("messagesContainer");
 
-  messageInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      sendMessage(messageInput.value);
-      messageInput.value = "";
-    }
-  });
+  send.onclick = () => { sendMsg(input.value); input.value = ""; };
+  input.onkeypress = e => { if (e.key === "Enter") { sendMsg(input.value); input.value = ""; } };
 
-  swapRequestBtn.addEventListener("click", () => {
-    confirmSwap(otherUserId);
+  const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp"));
+
+  unsubscribeMessages = onSnapshot(q, snap => {
+    const msgs = [];
+    snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+    renderMessages(container, msgs);
+    container.scrollTop = container.scrollHeight;
   });
 }
 
-async function sendMessage(text) {
-  if (text.trim() === "" || !currentChatId) return;
+function renderMessages(container, msgs) {
+  container.innerHTML = "";
 
-  const messagesRef = collection(db, "chats", currentChatId, "messages");
-  await addDoc(messagesRef, {
-    text,
+  msgs.forEach((m, i) => {
+    if ((m.deletedFor || []).includes(currentUser.uid)) {
+      return;
+    }
+
+    const side = m.sender === currentUser.uid ? "sent" : "received";
+
+    const bubble = m.meeting
+      ? `<strong>📹 Google Meet</strong><br>Tap to join<br>
+         <a href="${m.meetUrl}" target="_blank">${m.meetUrl}</a>
+         <div class="message-time">${time(m.timestamp)}</div>`
+      : `${escape(m.text)}<div class="message-time">${time(m.timestamp)}</div>`;
+
+    const messageId = m.id;
+
+    container.innerHTML += `
+      <div class="message ${side}">
+        <div class="message-bubble">
+          <div class="delete-icon" data-message-id="${messageId}"><i class="fas fa-trash"></i></div>
+          ${bubble}
+        </div>
+      </div>`;
+  });
+
+  document.querySelectorAll('.delete-icon').forEach(icon => {
+    icon.onclick = (e) => {
+      const messageId = e.currentTarget.dataset.messageId;
+      deleteForMe(currentChatId, messageId);
+    };
+  });
+}
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".msg-menu-box").forEach(b => b.classList.remove("show"));
+});
+
+async function sendMsg(t) {
+  if (!t.trim()) return;
+
+  await addDoc(collection(db, "chats", currentChatId, "messages"), {
+    text: t,
     sender: currentUser.uid,
     timestamp: serverTimestamp(),
+    deletedFor: []
+  });
+
+  await updateDoc(doc(db, "chats", currentChatId), {
+    lastMessage: t,
+    lastMessageTime: serverTimestamp()
   });
 }
 
-async function confirmSwap(otherUserId) {
-    if (!currentChatId) return;
-  
-    const chatRef = doc(db, "chats", currentChatId);
-    const chatDoc = await getDoc(chatRef);
-    const chatData = chatDoc.data();
-  
-    // Check if a swap is already pending
-    if (chatData.swap && chatData.swap.status === "pending") {
-      // If the other user initiated the swap, confirm it
-      if (chatData.swap.requester !== currentUser.uid) {
-        await updateDoc(chatRef, {
-          "swap.status": "confirmed",
-        });
-        alert("Swap confirmed!");
-      } else {
-        alert("You have already sent a swap request.");
-      }
-    } else {
-      // If no swap is pending, initiate a new one
-      await updateDoc(chatRef, {
-        swap: {
-          requester: currentUser.uid,
-          status: "pending",
-        },
-      });
-      alert("Swap request sent!");
-    }
-  }
-  
+function deleteForMe(chatId, msgId) {
+  updateDoc(doc(db, "chats", chatId, "messages", msgId), {
+    deletedFor: arrayUnion(currentUser.uid)
+  });
+}
 
-searchInput.addEventListener("input", (e) => {
-  const searchTerm = e.target.value.toLowerCase();
-  const chatItems = document.querySelectorAll(".chat-item");
-  chatItems.forEach((item) => {
-    const chatName = item.querySelector(".chat-name").textContent.toLowerCase();
-    if (chatName.includes(searchTerm)) {
-      item.style.display = "flex";
-    } else {
-      item.style.display = "none";
+function deleteForAll(chatId, msgId) {
+  deleteDoc(doc(db, "chats", chatId, "messages", msgId));
+}
+
+async function deleteChat(chatId) {
+  if (!chatId) return;
+
+  const confirmation = confirm("Are you sure you want to delete this chat for you only? Other participants will still see the messages.");
+  if (!confirmation) return;
+
+  try {
+    const messagesQuery = query(collection(db, "chats", chatId, "messages"));
+    const messagesSnapshot = await getDocs(messagesQuery);
+
+    if (messagesSnapshot.empty) {
+        console.log("No messages to delete.");
+        const container = document.getElementById("messagesContainer");
+        if (container) container.innerHTML = "";
+        return;
+    }
+    
+    const batches = [];
+    let currentBatch = writeBatch(db);
+    let operationCount = 0;
+
+    messagesSnapshot.forEach((messageDoc) => {
+      const messageRef = doc(db, "chats", chatId, "messages", messageDoc.id);
+      currentBatch.update(messageRef, {
+        deletedFor: arrayUnion(currentUser.uid)
+      });
+      operationCount++;
+      if (operationCount >= 499) {
+        batches.push(currentBatch);
+        currentBatch = writeBatch(db);
+        operationCount = 0;
+      }
+    });
+    if (operationCount > 0) {
+        batches.push(currentBatch);
+    }
+
+    await Promise.all(batches.map(batch => batch.commit()));
+    
+  } catch (error) {
+    console.error("Error deleting chat for user:", error);
+    alert("Failed to delete chat history. Please try again.");
+  }
+}
+
+
+async function openChatDirect(uid) {
+  const q = query(collection(db, "chats"),
+    where("users", "array-contains-any", [currentUser.uid, uid])
+  );
+
+  const snap = await getDocs(q);
+  let found = null;
+
+  snap.forEach(d => {
+    const x = d.data();
+    if (x.users.includes(currentUser.uid) && x.users.includes(uid)) found = d;
+  });
+
+  const us = await getDoc(doc(db, "users", uid));
+  const u = us.exists() ? us.data() : { username: "User", avatarUrl: null };
+
+  if (found) return openChat(found.id, uid, u.username, u.avatarUrl);
+
+  const newChat = await addDoc(collection(db, "chats"), {
+    users: [currentUser.uid, uid],
+    createdAt: serverTimestamp(),
+    lastMessage: "",
+    lastMessageTime: serverTimestamp()
+  });
+
+  openChat(newChat.id, uid, u.username, u.avatarUrl);
+}
+
+searchInput.oninput = e => {
+  const t = e.target.value.toLowerCase();
+  document.querySelectorAll(".chat-item").forEach(item => {
+    const n = item.querySelector(".chat-name")?.textContent.toLowerCase();
+    if (n) {
+      item.style.display = n.includes(t) ? "flex" : "none";
     }
   });
-});
+};
 
-window.addEventListener("click", () => {
-    const dropdowns = document.querySelectorAll(".dropdown-menu");
-    dropdowns.forEach(dropdown => {
-        dropdown.style.display = "none";
-    });
-});
+function time(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function escape(s) {
+  return s ? s.replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+}

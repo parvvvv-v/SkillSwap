@@ -4,21 +4,591 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillSwap Messenger</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+    :root {
+        --color-orange: #ff7d2a; 
+        --color-white: #ffffff;
+        --color-dark-blue: #1a2a3a; 
+        --color-medium-blue: #2c4a68; 
+        --color-light-gray: #e0e0e0;
+        --color-bg-light: #f1f6fc; 
+        --color-bg-team: #e6eaf0;
+        --color-light-blue-overlay: rgba(30, 144, 255, 0.4); 
+        --navbar-height: 60px; 
+    }
+    
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--color-bg-light);
+        color: #333;
+        scroll-behavior: smooth; 
+    }
+
+    .top-navbar {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        width: 100%;
+        background-color: var(--color-dark-blue);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        padding: 15px 40px;
+        box-sizing: border-box;
+        color: var(--color-white);
+        height: var(--navbar-height); 
+        transition: all 0.5s ease-in-out; 
+    }
+
+    .top-navbar.scrolled {
+        justify-content: center; 
+    }
+    .top-navbar .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+        transition: all 0.5s ease-in-out; 
+    }
+    .top-navbar .logo .skill { color: var(--color-orange); }
+    .top-navbar .logo .swap { color: var(--color-white); }
+    .top-navbar.scrolled .nav-links {
+        opacity: 0; 
+        visibility: hidden; 
+        max-width: 0; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0.4s;
+    }
+    .top-navbar .nav-links {
+        display: flex;
+        gap: 20px; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+        opacity: 1; 
+        visibility: visible;
+        max-width: 700px; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0s;
+    }
+    .top-navbar .nav-links a {
+        color: var(--color-white);
+        text-decoration: none;
+        font-size: 0.95rem; 
+        font-weight: 600;
+        transition: color 0.3s ease;
+        white-space: nowrap; 
+    }
+    .top-navbar .nav-links a:hover { color: var(--color-orange); }
+    
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        background-color: var(--color-medium-blue); 
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+        z-index: 10;
+        border-radius: 5px;
+        overflow: hidden;
+        animation: fadeIn 0.3s ease-out;
+        transform-origin: top;
+    }
+    .dropdown-menu a {
+        color: var(--color-white);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+        font-weight: 400;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .dropdown-menu a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-dark-blue);
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        background-color: var(--color-bg-light);
+        overflow: hidden;
+        padding-top: var(--navbar-height);
+        box-sizing: border-box;
+    }
+
+    .main-content {
+        display: flex;
+        flex-grow: 1;
+        height: calc(100% - var(--navbar-height));
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 30%;
+        max-width: 400px;
+        border-right: 1px solid #d1d7db;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--color-dark-blue);
+        color: var(--color-white);
+    }
+
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        background-color: var(--color-dark-blue);
+        border-bottom: 1px solid var(--color-medium-blue);
+    }
+
+    .sidebar-header .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+
+    .sidebar-header h2 {
+        font-size: 20px;
+        font-weight: 600;
+        flex-grow: 1;
+        color: var(--color-white);
+    }
+
+    .sidebar-actions button {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 15px;
+        color: var(--color-light-gray);
+    }
+
+    .search-box {
+        padding: 8px 12px;
+        background-color: var(--color-dark-blue);
+        border-bottom: 1px solid var(--color-medium-blue);
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid var(--color-medium-blue);
+        border-radius: 20px;
+        box-sizing: border-box;
+        background-color: var(--color-medium-blue);
+        font-size: 14px;
+        color: var(--color-white);
+    }
+
+    .chat-list {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    .chat-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--color-medium-blue);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .chat-item:hover {
+        background-color: var(--color-medium-blue);
+    }
+
+    .chat-item.active {
+        background-color: var(--color-orange);
+    }
+
+    .chat-avatar img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .chat-info {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+
+    .chat-header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-name {
+        font-weight: 600;
+        font-size: 17px;
+        color: var(--color-white);
+    }
+
+    .chat-time {
+        font-size: 12px;
+        color: var(--color-light-gray);
+    }
+
+    .chat-preview {
+        margin-top: 4px;
+        color: var(--color-light-gray);
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Chat Area */
+    .chat-area {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--color-bg-light);
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        text-align: center;
+        color: #54656f;
+        background-color: var(--color-bg-light);
+    }
+
+    .chat-area-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        background-color: var(--color-white);
+        border-bottom: 1px solid #d1d7db;
+    }
+
+    .chat-area-info {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .chat-area-info img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .chat-area-name {
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .chat-area-status {
+        font-size: 13px;
+        color: #667781;
+    }
+
+    .chat-area-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    .chat-area-actions button {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        margin-left: 20px;
+        color: #54656f;
+    }
+
+    #meetBtn {
+        font-size: 22px;
+        color: #00796b;
+    }
+
+    #meetBtn:hover {
+        color: #004d40;
+    }
+
+    #deleteChatBtn {
+        font-size: 20px;
+        color: #d32f2f;
+    }
+
+    #deleteChatBtn:hover {
+        color: #b71c1c;
+    }
+
+    .messages-container {
+        flex-grow: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: #e5ddd5;
+        background-image: linear-gradient(135deg, rgba(0,0,0,0.02) 25%, transparent 25%, transparent 50%, rgba(0,0,0,0.02) 50%, rgba(0,0,0,0.02) 75%, transparent 75%, transparent);
+        background-size: 40px 40px;
+    }
+
+    .message {
+        display: flex;
+        margin-bottom: 12px;
+    }
+
+    .message.sent {
+        justify-content: flex-end;
+    }
+
+    .message.received {
+        justify-content: flex-start;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 20px;
+        position: relative;
+        font-size: 14.2px;
+        line-height: 1.4;
+    }
+
+    .message.sent .message-bubble {
+        background-color: var(--color-orange);
+        color: var(--color-white);
+    }
+
+    .message.received .message-bubble {
+        background-color: var(--color-white);
+        color: #000;
+    }
+
+    .message-text {
+        margin-bottom: 5px;
+    }
+
+    .message-time {
+        font-size: 11px;
+        color: #667781;
+        text-align: right;
+        margin-top: 5px;
+    }
+
+    .delete-icon {
+        position: absolute;
+        top: 2px;
+        right: 8px;
+        cursor: pointer;
+        display: none;
+        font-size: 12px;
+    }
+
+    .message-bubble:hover .delete-icon {
+        display: block;
+    }
+
+    .message.sent .message-bubble .delete-icon {
+        color: #f0f0f0;
+    }
+
+    .message.received .message-bubble .delete-icon {
+        color: #888;
+    }
+
+    .input-area {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        background-color: var(--color-white);
+        border-top: 1px solid #d1d7db;
+    }
+
+    .input-area input {
+        flex-grow: 1;
+        padding: 12px 18px;
+        border: 1px solid #d1d7db;
+        border-radius: 25px;
+        margin: 0 10px;
+        font-size: 15px;
+    }
+
+    .input-area button {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #54656f;
+    }
+
+</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --color-orange: #ff7d2a; 
+        --color-white: #ffffff;
+        --color-dark-blue: #1a2a3a; 
+        --color-medium-blue: #2c4a68; 
+        --color-light-gray: #e0e0e0;
+        --color-bg-light: #f1f6fc; 
+        --color-bg-team: #e6eaf0;
+        --color-light-blue-overlay: rgba(30, 144, 255, 0.4); 
+        --navbar-height: 60px; 
+    }
+    
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--color-white);
+        color: #333;
+        min-height: 200vh;
+        scroll-behavior: smooth; 
+    }
+
+    .top-navbar {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        width: 100%;
+        background-color: var(--color-dark-blue);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        padding: 15px 40px;
+        box-sizing: border-box;
+        color: var(--color-white);
+        height: var(--navbar-height); 
+        transition: all 0.5s ease-in-out; 
+    }
+
+    .top-navbar.scrolled {
+        justify-content: center; 
+    }
+    .top-navbar .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+        transition: all 0.5s ease-in-out; 
+    }
+    .top-navbar .logo .skill { color: var(--color-orange); }
+    .top-navbar .logo .swap { color: var(--color-white); }
+    .top-navbar.scrolled .nav-links {
+        opacity: 0; 
+        visibility: hidden; 
+        max-width: 0; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0.4s;
+    }
+    .top-navbar .nav-links {
+        display: flex;
+        gap: 20px; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+        opacity: 1; 
+        visibility: visible;
+        max-width: 700px; 
+        transition: opacity 0.4s ease-in-out, max-width 0.4s ease-in-out, visibility 0s 0s;
+    }
+    .top-navbar .nav-links a {
+        color: var(--color-white);
+        text-decoration: none;
+        font-size: 0.95rem; 
+        font-weight: 600;
+        transition: color 0.3s ease;
+        white-space: nowrap; 
+    }
+    .top-navbar .nav-links a:hover { color: var(--color-orange); }
+    .hero-container { padding-top: var(--navbar-height); }
+    
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        left: 0;
+        background-color: var(--color-medium-blue); 
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4);
+        z-index: 10;
+        border-radius: 5px;
+        overflow: hidden;
+        animation: fadeIn 0.3s ease-out;
+        transform-origin: top;
+    }
+    .dropdown-menu a {
+        color: var(--color-white);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        text-align: left;
+        font-weight: 400;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .dropdown-menu a:hover {
+        background-color: var(--color-orange);
+        color: var(--color-dark-blue);
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@latest/dist/index.min.js"></script>
+
 </head>
 <body>
     <div class="container">
+        <div class="top-navbar">
+    <a href="#" class="logo">
+        <span class="skill">SKILL</span><span class="swap">SWAP</span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="chats.html">CHATS</a></li>
+        <li><a href="requests.html">REQUESTS</a></li>
+        <li class="dropdown">
+            <a href="#">ABOUT US<i class="fas fa-caret-down"></i></a>
+            <div class="dropdown-menu">
+                <a href="#why-choose-us">Why Choose Us?</a>
+                <a href="#what-we-do">What We Do</a>
+                <a href="#our-team">Our Team</a>
+            </div>
+        </li>
+        <li><a href="profile.html">PROFILE</a></li>
+    </ul>
+</div>
+        <div class="main-content">
         <!-- Sidebar -->
         <div class="sidebar">
-            <div class="sidebar-header">
-                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?size=626&ext=jpg&ga=GA1.1.1141335507.1718841600&semt=sph" alt="Logo" class="logo">
-                <h2>SkillSwap</h2>
-                <div class="sidebar-actions">
-                    <button><i class="fas fa-edit"></i></button>
-                    <button><i class="fas fa-ellipsis-v"></i></button>
-                </div>
-            </div>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search or start a new chat">
             </div>
