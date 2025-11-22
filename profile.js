@@ -18,12 +18,13 @@ const avatarGrid = document.getElementById('avatarGrid');
 let currentUserId = null;
 let unsubscribeProfile = null;
 
+// UPDATED AVATAR_OPTIONS ARRAY
 const AVATAR_OPTIONS = [
-    'https://i.ibb.co/BHJX7Wds/B1.jpg', 
-    'https://i.ibb.co/Y7HQddN6/B2.jpg', 
-    'https://i.ibb.co/whpQrKSg/B3.jpg',
-    'https://i.ibb.co/XNDN1nn/G1.jpg', 
-    'https://i.ibb.co/FktjwR0n/G2.jpg', 
+    'https://i.ibb.co/BHJX7Wds/B1.jpg', // Avatar 1 (New Default)
+    'https://i.ibb.co/Y7HQddN6/B2.jpg', // Avatar 2
+    'https://i.ibb.co/whpQrKSg/B3.jpg', // Avatar 3
+    'https://i.ibb.co/XNDN1nn/G1.jpg', // Avatar 4
+    'https://i.ibb.co/FktjwR0n/G2.jpg', // Avatar 5
 ];
 
 function cleanAndSplitSkills(skillsString) {
