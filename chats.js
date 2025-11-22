@@ -26,22 +26,6 @@ onAuthStateChanged(auth, async (user) => {
 async function loadChats() {
   chatList.innerHTML = "";
 
-  chatList.appendChild(staticChat({
-    avatar: "https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg",
-    name: "SkillSwap",
-    preview: "Welcome to SkillSwap!",
-    chatId: "skillswap_help_chat",
-    otherId: "skillswap_bot"
-  }));
-
-  chatList.appendChild(staticChat({
-    avatar: "https://www.w3schools.com/howto/img_avatar.png",
-    name: "Demo User",
-    preview: "This is a demo chat.",
-    chatId: "demo_chat",
-    otherId: "demo_user"
-  }));
-
   const q = query(collection(db, "chats"), where("users", "array-contains", currentUser.uid));
 
   if (chatsUnsub) chatsUnsub();
@@ -123,8 +107,7 @@ async function openChat(chatId, otherUserId, name, pic) {
   `;
 
   document.getElementById("meetBtn").onclick = async () => {
-    const code = Math.random().toString(36).substring(2, 12);
-    const url = `https://meet.google.com/${code}`;
+    const url = `https://meet.google.com/new`;
     window.open(url, "_blank");
 
     await addDoc(collection(db, "chats", currentChatId, "messages"), {
@@ -169,7 +152,11 @@ function renderMessages(container, msgs) {
       return;
     }
 
-    const side = m.sender === currentUser.uid ? "sent" : "received";
+    let side = m.sender === currentUser.uid ? "sent" : "received";
+    if (m.sender === 'skillswap_bot' && currentChatId === 'skillswap_help_chat') {
+        side = "received";
+    }
+
 
     const bubble = m.meeting
       ? `<strong>📹 Google Meet</strong><br>Tap to join<br>
@@ -214,7 +201,39 @@ async function sendMsg(t) {
     lastMessage: t,
     lastMessageTime: serverTimestamp()
   });
+
+  if (currentChatId === "skillswap_help_chat") {
+      await generateBotResponse(t);
+  }
 }
+
+async function generateBotResponse(userMessage) {
+    let botResponse = "I'm a SkillSwap bot, built to assist you. I'm currently set to provide automated responses. How can I help you connect, learn, or share skills today?";
+    const msg = userMessage.toLowerCase();
+
+    if (msg.includes("hello") || msg.includes("hi")) {
+        botResponse = "Hello! I'm SkillSwap Bot. I can help you navigate the app. What skill are you looking to swap or learn?";
+    } else if (msg.includes("skillswap")) {
+        botResponse = "SkillSwap is a platform dedicated to connecting individuals for skill exchange. You can teach what you know and learn something new in return!";
+    } else if (msg.includes("help") || msg.includes("support")) {
+        botResponse = "For app support, please check the 'Requests' tab or tell me briefly what issue you're facing, and I will try to direct you!";
+    } else if (msg.includes("gemini")) {
+        botResponse = "I aim to be as helpful as a large language model! While I have simple, rule-based responses for now, my purpose is to guide you through SkillSwap.";
+    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    await addDoc(collection(db, "chats", currentChatId, "messages"), {
+        text: botResponse,
+        sender: 'skillswap_bot', 
+        timestamp: serverTimestamp(),
+        deletedFor: []
+    });
+    await updateDoc(doc(db, "chats", currentChatId), {
+        lastMessage: "SkillSwap Bot: " + botResponse,
+        lastMessageTime: serverTimestamp()
+    });
+}
+
 
 function deleteForMe(chatId, msgId) {
   updateDoc(doc(db, "chats", chatId, "messages", msgId), {
@@ -304,8 +323,12 @@ searchInput.oninput = e => {
   const t = e.target.value.toLowerCase();
   document.querySelectorAll(".chat-item").forEach(item => {
     const n = item.querySelector(".chat-name")?.textContent.toLowerCase();
-    if (n) {
-      item.style.display = n.includes(t) ? "flex" : "none";
+    if (item.classList.contains("real-chat")) {
+        if (n) {
+          item.style.display = n.includes(t) ? "flex" : "none";
+        }
+    } else {
+        item.style.display = "none";
     }
   });
 };
