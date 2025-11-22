@@ -20,7 +20,7 @@
     body {
         margin: 0;
         font-family: 'Montserrat', sans-serif;
-        background-color: var(--color-bg-light);
+        background-color: var(--color-white);
         color: #333;
         scroll-behavior: smooth; 
     }
@@ -81,6 +81,7 @@
         white-space: nowrap; 
     }
     .top-navbar .nav-links a:hover { color: var(--color-orange); }
+    .hero-container { padding-top: var(--navbar-height); }
     
     .dropdown {
         position: relative;
@@ -460,7 +461,6 @@
         font-family: 'Montserrat', sans-serif;
         background-color: var(--color-white);
         color: #333;
-        min-height: 200vh;
         scroll-behavior: smooth; 
     }
 
@@ -587,17 +587,14 @@
     </ul>
 </div>
         <div class="main-content">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Search or start a new chat">
             </div>
             <div class="chat-list" id="chatList">
-                <!-- Chats will be loaded here by chats.js -->
-            </div>
+                </div>
         </div>
 
-        <!-- Chat Area -->
         <div class="chat-area" id="chatArea">
             <div class="empty-state">
                 <div style="font-size: 80px;">💬</div>
