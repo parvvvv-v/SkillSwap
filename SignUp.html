@@ -420,13 +420,19 @@
 
                 await updateProfile(user, { displayName: username });
                 const userDocRef = doc(db, "users", user.uid);
+                
+                // --- FIX APPLIED HERE ---
+                // Set the default avatar URL to match the one in profile.js
+                const defaultAvatarUrl = "https://i.ibb.co/BHJX7Wds/B1.jpg"; 
+                
                 await setDoc(userDocRef, {
                     username: username,
                     email: email,
                     skillsKnown: "", 
                     skillsToLearn: "",
-                    avatarUrl: "https://via.placeholder.com/100/f19fb3/ffffff?text=" + username.charAt(0).toUpperCase()
+                    avatarUrl: defaultAvatarUrl // Use the selected default avatar
                 });
+                // ------------------------
 
                 const totalDisplayTime = 1800;
                 welcomeSplash.classList.add('active');
@@ -463,5 +469,6 @@
     </script>
 </body>
 </html>
+
 
 
