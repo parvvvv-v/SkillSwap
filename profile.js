@@ -19,12 +19,11 @@ let currentUserId = null;
 let unsubscribeProfile = null;
 
 const AVATAR_OPTIONS = [
-    'https://i.ibb.co/hJ0vB10C/B1.jpg', 
-    'https://i.ibb.co/7NV8s9BV/B2.jpg', 
-    'https://i.ibb.co/N2m8JGnV/B3.jpg', 
-    'https://i.ibb.co/84GrQZmB/G1.jpg',
-    'https://i.ibb.co/L50n158r/G2.jpg',
-    'https://i.ibb.co/2d1hVj5S/G3.jpg'
+    'https://i.ibb.co/BHJX7Wds/B1.jpg', 
+    'https://i.ibb.co/Y7HQddN6/B2.jpg', 
+    'https://i.ibb.co/whpQrKSg/B3.jpg',
+    'https://i.ibb.co/XNDN1nn/G1.jpg', 
+    'https://i.ibb.co/FktjwR0n/G2.jpg', 
 ];
 
 function cleanAndSplitSkills(skillsString) {
@@ -72,7 +71,7 @@ async function loadProfile(uid) {
                 username: '',
                 skillsKnown: [],
                 skillsToLearn: [],
-                avatarUrl: AVATAR_OPTIONS[0],
+                avatarUrl: AVATAR_OPTIONS[0], // Uses new default
                 createdAt: new Date().toISOString()
             }, { merge: true });
             avatarPreview.src = AVATAR_OPTIONS[0];
